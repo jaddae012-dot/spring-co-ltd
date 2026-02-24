@@ -70,9 +70,9 @@ export async function getSheetBlogPosts(sheetId: string): Promise<SheetBlogPost[
     const colMap: Record<string, number> = {};
 
     if (hasLabels) {
-      // Labels exist in cols
+      // Labels exist in cols — strip all whitespace/newlines
       cols.forEach((col: { label: string }, index: number) => {
-        const label = col.label?.toLowerCase()?.trim();
+        const label = col.label?.replace(/[\n\r\s]+/g, " ")?.trim()?.toLowerCase();
         if (label) colMap[label] = index;
       });
     } else if (rows.length > 0) {
@@ -93,7 +93,13 @@ export async function getSheetBlogPosts(sheetId: string): Promise<SheetBlogPost[
     return rows
       .map((row: { c: ({ v: string | number | boolean | null } | null)[] }) => {
         const get = (key: string): string => {
-          const idx = colMap[key];
+          // Try exact match first, then partial match
+          let idx = colMap[key];
+          if (idx === undefined) {
+            // Try finding a key that contains or matches
+            const match = Object.keys(colMap).find((k) => k.includes(key) || key.includes(k));
+            if (match) idx = colMap[match];
+          }
           if (idx === undefined) return "";
           const cell = row.c?.[idx];
           if (!cell || cell.v === null || cell.v === undefined) return "";
@@ -115,7 +121,14 @@ export async function getSheetBlogPosts(sheetId: string): Promise<SheetBlogPost[
 
         // Handle date from Google Forms timestamp or manual date
         let date = get("date") || get("timestamp") || "";
-        if (date.includes("/")) {
+        // Google Sheets returns dates as "Date(YYYY,M,D,H,M,S)" — parse it
+        const dateMatch = date.match(/Date\((\d+),(\d+),(\d+)/);
+        if (dateMatch) {
+          const year = dateMatch[1];
+          const month = String(Number(dateMatch[2]) + 1).padStart(2, "0"); // months are 0-indexed
+          const day = dateMatch[3].padStart(2, "0");
+          date = `${year}-${month}-${day}`;
+        } else if (date.includes("/")) {
           // Convert MM/DD/YYYY or similar to YYYY-MM-DD
           const d = new Date(date);
           if (!isNaN(d.getTime())) {
