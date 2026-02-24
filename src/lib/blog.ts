@@ -1,6 +1,6 @@
-import { blogPosts, blogCategories } from "@/data/blog";
-import { getSheetBlogPosts } from "@/lib/sheets";
-import type { BlogPost } from "@/data/blog";
+import fs from "fs";
+import path from "path";
+import { parseFrontmatter, markdownToParas } from "@/lib/markdown";
 
 export interface UnifiedBlogPost {
   id: string;
@@ -16,55 +16,51 @@ export interface UnifiedBlogPost {
   featured: boolean;
 }
 
-function toUnified(p: BlogPost): UnifiedBlogPost {
+const BLOG_DIR = path.join(process.cwd(), "content", "blog");
+
+// Read all markdown files from content/blog/
+function getMarkdownFiles(): string[] {
+  if (!fs.existsSync(BLOG_DIR)) return [];
+  return fs
+    .readdirSync(BLOG_DIR)
+    .filter((f) => f.endsWith(".md"))
+    .map((f) => path.join(BLOG_DIR, f));
+}
+
+// Parse a single markdown file into a blog post
+function parsePost(filePath: string): UnifiedBlogPost | null {
+  const raw = fs.readFileSync(filePath, "utf-8");
+  const { data, content } = parseFrontmatter(raw);
+
+  if (!data.title) return null;
+
+  const slug =
+    data.slug ||
+    path.basename(filePath, ".md");
+
   return {
-    id: p.slug,
-    slug: p.slug,
-    title: p.title,
-    excerpt: p.excerpt,
-    content: p.content,
-    category: p.category,
-    author: p.author,
-    date: p.date,
-    readTime: p.readTime,
-    image: p.image,
-    featured: p.featured || false,
+    id: slug,
+    slug,
+    title: data.title || "Untitled",
+    excerpt: data.excerpt || "",
+    content: markdownToParas(content),
+    category: data.category || "Company News",
+    author: data.author || "SPRING.CO.LTD Team",
+    date: data.date || new Date().toISOString().split("T")[0],
+    readTime: data.readTime || "3 min read",
+    image: data.image || "📰",
+    featured: data.featured === "true",
   };
 }
 
-// Get all blog posts — from Google Sheets + static data, sorted newest first
+// Get all blog posts sorted by date (newest first)
 export async function getAllBlogPosts(): Promise<UnifiedBlogPost[]> {
-  // Get posts from Google Sheets (team posts from phone)
-  const sheetPosts = await getSheetBlogPosts();
+  const files = getMarkdownFiles();
+  const posts = files
+    .map(parsePost)
+    .filter((p): p is UnifiedBlogPost => p !== null);
 
-  // Convert Google Sheets posts to unified format
-  const sheetUnified: UnifiedBlogPost[] = sheetPosts.map((p) => ({
-    id: p.slug,
-    slug: p.slug,
-    title: p.title,
-    excerpt: p.excerpt,
-    // Split content by double newlines or use as single paragraph
-    content: p.content
-      ? p.content.split(/\n\n|\n/).filter((s) => s.trim())
-      : [],
-    category: p.category,
-    author: p.author,
-    date: p.date,
-    readTime: p.readTime,
-    image: p.image,
-    featured: p.featured,
-  }));
-
-  // Combine: Google Sheets posts + static posts (Sheets posts take priority)
-  const sheetSlugs = new Set(sheetUnified.map((p) => p.slug));
-  const staticUnified = blogPosts
-    .filter((p) => !sheetSlugs.has(p.slug))
-    .map(toUnified);
-
-  const allPosts = [...sheetUnified, ...staticUnified];
-
-  // Sort by date, newest first
-  return allPosts.sort(
+  return posts.sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 }
@@ -77,13 +73,10 @@ export async function getBlogPostBySlug(
   return allPosts.find((p) => p.slug === slug) || null;
 }
 
-// Get all categories (static + any new ones from Sheets)
+// Get all categories
 export async function getBlogCategories(): Promise<string[]> {
-  const sheetPosts = await getSheetBlogPosts();
-  const sheetCategories = sheetPosts.map((p) => p.category);
-  const allCategories = new Set([...blogCategories, ...sheetCategories]);
-  // Keep "All" at the front
-  allCategories.delete("All");
-  return ["All", ...Array.from(allCategories)];
+  const posts = await getAllBlogPosts();
+  const cats = new Set(posts.map((p) => p.category));
+  return ["All", ...Array.from(cats)];
 }
 
