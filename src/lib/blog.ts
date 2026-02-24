@@ -1,4 +1,5 @@
 import { blogPosts, blogCategories } from "@/data/blog";
+import { getSheetBlogPosts } from "@/lib/sheets";
 import type { BlogPost } from "@/data/blog";
 
 export interface UnifiedBlogPost {
@@ -31,22 +32,58 @@ function toUnified(p: BlogPost): UnifiedBlogPost {
   };
 }
 
-// Get all blog posts sorted by date (newest first)
+// Get all blog posts — from Google Sheets + static data, sorted newest first
 export async function getAllBlogPosts(): Promise<UnifiedBlogPost[]> {
-  return blogPosts
-    .map(toUnified)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  // Get posts from Google Sheets (team posts from phone)
+  const sheetPosts = await getSheetBlogPosts();
+
+  // Convert Google Sheets posts to unified format
+  const sheetUnified: UnifiedBlogPost[] = sheetPosts.map((p) => ({
+    id: p.slug,
+    slug: p.slug,
+    title: p.title,
+    excerpt: p.excerpt,
+    // Split content by double newlines or use as single paragraph
+    content: p.content
+      ? p.content.split(/\n\n|\n/).filter((s) => s.trim())
+      : [],
+    category: p.category,
+    author: p.author,
+    date: p.date,
+    readTime: p.readTime,
+    image: p.image,
+    featured: p.featured,
+  }));
+
+  // Combine: Google Sheets posts + static posts (Sheets posts take priority)
+  const sheetSlugs = new Set(sheetUnified.map((p) => p.slug));
+  const staticUnified = blogPosts
+    .filter((p) => !sheetSlugs.has(p.slug))
+    .map(toUnified);
+
+  const allPosts = [...sheetUnified, ...staticUnified];
+
+  // Sort by date, newest first
+  return allPosts.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
 }
 
 // Get a single post by slug
-export async function getBlogPostBySlug(slug: string): Promise<UnifiedBlogPost | null> {
-  const post = blogPosts.find((p) => p.slug === slug);
-  if (!post) return null;
-  return toUnified(post);
+export async function getBlogPostBySlug(
+  slug: string
+): Promise<UnifiedBlogPost | null> {
+  const allPosts = await getAllBlogPosts();
+  return allPosts.find((p) => p.slug === slug) || null;
 }
 
-// Get all categories
+// Get all categories (static + any new ones from Sheets)
 export async function getBlogCategories(): Promise<string[]> {
-  return blogCategories;
+  const sheetPosts = await getSheetBlogPosts();
+  const sheetCategories = sheetPosts.map((p) => p.category);
+  const allCategories = new Set([...blogCategories, ...sheetCategories]);
+  // Keep "All" at the front
+  allCategories.delete("All");
+  return ["All", ...Array.from(allCategories)];
 }
 
