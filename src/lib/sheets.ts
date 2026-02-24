@@ -43,10 +43,13 @@ export async function getSheetBlogPosts(sheetId: string): Promise<SheetBlogPost[
 
   try {
     const res = await fetch(getSheetCsvUrl(sheetId), {
-      next: { revalidate: 60 }, // Refresh every 60 seconds
+      cache: "no-store", // Always fetch fresh data
     });
 
-    if (!res.ok) return [];
+    if (!res.ok) {
+      console.error("Google Sheets fetch failed:", res.status, res.statusText);
+      return [];
+    }
 
     const text = await res.text();
 

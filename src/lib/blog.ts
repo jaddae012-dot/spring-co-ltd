@@ -58,7 +58,9 @@ function parsePost(filePath: string): UnifiedBlogPost | null {
 // Get all blog posts: Google Forms (via Sheet) + Markdown files, newest first
 export async function getAllBlogPosts(): Promise<UnifiedBlogPost[]> {
   // 1. Get posts from Google Sheets (submitted via Google Forms)
+  console.log("[Blog] SHEET_ID:", SHEET_ID ? "SET" : "NOT SET");
   const sheetPosts = await getSheetBlogPosts(SHEET_ID);
+  console.log("[Blog] Sheet posts found:", sheetPosts.length);
   const formPosts: UnifiedBlogPost[] = sheetPosts.map((p) => ({
     id: p.slug,
     slug: p.slug,
