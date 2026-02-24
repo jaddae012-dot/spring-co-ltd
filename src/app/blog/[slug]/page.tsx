@@ -8,6 +8,10 @@ function isImageUrl(str: string): boolean {
   return str.startsWith("http://") || str.startsWith("https://");
 }
 
+// Allow dynamic slugs from Google Forms posts
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
+
 interface Props {
   params: Promise<{ slug: string }>;
 }
