@@ -61,12 +61,34 @@ export async function getSheetBlogPosts(sheetId: string): Promise<SheetBlogPost[
 
     if (rows.length === 0) return [];
 
-    // Map column labels to indices (case insensitive)
+    // Google Forms puts headers in the first data row, not in col labels
+    // Check if col labels are empty — if so, use first row as headers
+    const hasLabels = cols.some(
+      (col: { label: string }) => col.label?.trim()?.length > 0
+    );
+
     const colMap: Record<string, number> = {};
-    cols.forEach((col: { label: string }, index: number) => {
-      const label = col.label?.toLowerCase()?.trim();
-      if (label) colMap[label] = index;
-    });
+
+    if (hasLabels) {
+      // Labels exist in cols
+      cols.forEach((col: { label: string }, index: number) => {
+        const label = col.label?.toLowerCase()?.trim();
+        if (label) colMap[label] = index;
+      });
+    } else if (rows.length > 0) {
+      // Use first row as headers
+      const headerRow = rows[0];
+      headerRow.c?.forEach(
+        (cell: { v: string | null } | null, index: number) => {
+          const label = cell?.v?.toString()?.toLowerCase()?.trim();
+          if (label) colMap[label] = index;
+        }
+      );
+      // Remove header row from data
+      rows.splice(0, 1);
+    }
+
+    if (rows.length === 0) return [];
 
     return rows
       .map((row: { c: ({ v: string | number | boolean | null } | null)[] }) => {
@@ -78,10 +100,10 @@ export async function getSheetBlogPosts(sheetId: string): Promise<SheetBlogPost[
           return cell.v.toString().trim();
         };
 
-        const title = get("title");
+        const title = get("title") || get("tite");
         if (!title) return null;
 
-        const contentRaw = get("content") || get("blog content");
+        const contentRaw = get("content") || get("blog content") || get("\n\ncontent");
         const content = contentRaw
           ? contentRaw.split(/\n\n+|\n/).filter((s) => s.trim())
           : [];
@@ -89,7 +111,7 @@ export async function getSheetBlogPosts(sheetId: string): Promise<SheetBlogPost[
         const category = get("category") || "Company News";
         const author = get("author") || get("author name") || "SPRING.CO.LTD Team";
         const image = get("image") || get("image url") || "📰";
-        const excerpt = get("excerpt") || get("summary") || contentRaw.slice(0, 150) + "...";
+        const excerpt = get("excerpt") || get("summary") || get("\n\nsummary") || (contentRaw.length > 0 ? contentRaw.slice(0, 150) + "..." : "");
 
         // Handle date from Google Forms timestamp or manual date
         let date = get("date") || get("timestamp") || "";
