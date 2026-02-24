@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { parseFrontmatter, markdownToParas } from "@/lib/markdown";
+import { getSheetBlogPosts } from "@/lib/sheets";
 
 export interface UnifiedBlogPost {
   id: string;
@@ -17,6 +18,7 @@ export interface UnifiedBlogPost {
 }
 
 const BLOG_DIR = path.join(process.cwd(), "content", "blog");
+const SHEET_ID = process.env.GOOGLE_SHEET_ID || "";
 
 // Read all markdown files from content/blog/
 function getMarkdownFiles(): string[] {
@@ -53,14 +55,36 @@ function parsePost(filePath: string): UnifiedBlogPost | null {
   };
 }
 
-// Get all blog posts sorted by date (newest first)
+// Get all blog posts: Google Forms (via Sheet) + Markdown files, newest first
 export async function getAllBlogPosts(): Promise<UnifiedBlogPost[]> {
+  // 1. Get posts from Google Sheets (submitted via Google Forms)
+  const sheetPosts = await getSheetBlogPosts(SHEET_ID);
+  const formPosts: UnifiedBlogPost[] = sheetPosts.map((p) => ({
+    id: p.slug,
+    slug: p.slug,
+    title: p.title,
+    excerpt: p.excerpt,
+    content: p.content,
+    category: p.category,
+    author: p.author,
+    date: p.date,
+    readTime: p.readTime,
+    image: p.image,
+    featured: p.featured,
+  }));
+
+  // 2. Get posts from Markdown files
   const files = getMarkdownFiles();
-  const posts = files
+  const mdPosts = files
     .map(parsePost)
     .filter((p): p is UnifiedBlogPost => p !== null);
 
-  return posts.sort(
+  // 3. Combine (Form posts override MD posts with same slug)
+  const formSlugs = new Set(formPosts.map((p) => p.slug));
+  const uniqueMdPosts = mdPosts.filter((p) => !formSlugs.has(p.slug));
+  const allPosts = [...formPosts, ...uniqueMdPosts];
+
+  return allPosts.sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 }
