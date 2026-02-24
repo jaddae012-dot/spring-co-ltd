@@ -1,3 +1,36 @@
+// =====================================================
+// 📝 HOW TO ADD A NEW BLOG POST:
+// =====================================================
+// 1. Go to https://github.com/jaddae012-dot/spring-co-ltd
+// 2. Click on src → data → blog.ts
+// 3. Click the pencil icon (✏️) to edit
+// 4. Copy & paste the TEMPLATE below at the TOP of the blogPosts array
+// 5. Fill in your details
+// 6. Click "Commit changes" — your blog will be live in ~60 seconds!
+//
+// TEMPLATE (copy everything between the dashes):
+// -----------------------------------------------
+//   {
+//     slug: "your-post-url-slug",
+//     title: "Your Blog Post Title",
+//     excerpt: "A short summary of your post (1-2 sentences).",
+//     content: [
+//       "First paragraph of your blog post.",
+//       "Second paragraph of your blog post.",
+//       "Add as many paragraphs as you want.",
+//     ],
+//     category: "Company News",
+//     author: "SPRING.CO.LTD Team",
+//     date: "2026-03-01",
+//     readTime: "3 min read",
+//     image: "🌟",
+//     featured: false,
+//   },
+// -----------------------------------------------
+// CATEGORY OPTIONS: "Company News" | "Agriculture" | "Logistics" |
+//   "Education" | "Creative & Design" | "Cleaning Tips" | "Community"
+// =====================================================
+
 export interface BlogPost {
   slug: string;
   title: string;
