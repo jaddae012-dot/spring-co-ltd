@@ -1,8 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import type { UnifiedBlogPost } from "@/lib/blog";
+
+function isImageUrl(str: string): boolean {
+  return str.startsWith("http://") || str.startsWith("https://");
+}
 
 interface BlogPageClientProps {
   posts: UnifiedBlogPost[];
@@ -42,7 +47,13 @@ export default function BlogPageClient({ posts, categories }: BlogPageClientProp
                   Featured
                 </div>
                 <div className="flex flex-col md:flex-row gap-8 items-center">
-                  <div className="text-7xl md:text-8xl">{featuredPost.image}</div>
+                  {isImageUrl(featuredPost.image) ? (
+                    <div className="w-40 h-40 md:w-48 md:h-48 relative rounded-xl overflow-hidden flex-shrink-0">
+                      <Image src={featuredPost.image} alt={featuredPost.title} fill className="object-cover" />
+                    </div>
+                  ) : (
+                    <div className="text-7xl md:text-8xl">{featuredPost.image}</div>
+                  )}
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-3">
                       <span className="px-3 py-1 rounded-full bg-green-500/10 text-green-400 text-xs font-medium">
@@ -86,9 +97,15 @@ export default function BlogPageClient({ posts, categories }: BlogPageClientProp
             {filteredPosts.map((post) => (
               <Link key={post.slug} href={`/blog/${post.slug}`}>
                 <article className="glass rounded-2xl overflow-hidden hover:bg-white/10 transition-colors duration-200 group h-full flex flex-col">
-                  <div className="h-48 flex items-center justify-center bg-gradient-to-br from-white/5 to-white/0 text-6xl">
-                    {post.image}
-                  </div>
+                  {isImageUrl(post.image) ? (
+                    <div className="h-48 relative">
+                      <Image src={post.image} alt={post.title} fill className="object-cover" />
+                    </div>
+                  ) : (
+                    <div className="h-48 flex items-center justify-center bg-gradient-to-br from-white/5 to-white/0 text-6xl">
+                      {post.image}
+                    </div>
+                  )}
                   <div className="p-6 flex-1 flex flex-col">
                     <div className="flex items-center gap-3 mb-3">
                       <span className="px-2.5 py-1 rounded-full bg-green-500/10 text-green-400 text-xs font-medium">

@@ -1,7 +1,12 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAllBlogPosts, getBlogPostBySlug } from "@/lib/blog";
 import type { Metadata } from "next";
+
+function isImageUrl(str: string): boolean {
+  return str.startsWith("http://") || str.startsWith("https://");
+}
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -71,9 +76,15 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
 
           {/* Featured Image */}
-          <div className="glass rounded-2xl h-64 md:h-80 flex items-center justify-center text-8xl mb-12">
-            {post.image}
-          </div>
+          {isImageUrl(post.image) ? (
+            <div className="relative rounded-2xl overflow-hidden h-64 md:h-96 mb-12">
+              <Image src={post.image} alt={post.title} fill className="object-cover" />
+            </div>
+          ) : (
+            <div className="glass rounded-2xl h-64 md:h-80 flex items-center justify-center text-8xl mb-12">
+              {post.image}
+            </div>
+          )}
 
           {/* Content */}
           <div className="space-y-6 mb-16">
@@ -108,7 +119,13 @@ export default async function BlogPostPage({ params }: Props) {
                 {relatedPosts.map((related) => (
                   <Link key={related.slug} href={`/blog/${related.slug}`}>
                     <div className="glass rounded-2xl p-6 hover:bg-white/10 transition-colors duration-200 group">
-                      <div className="text-4xl mb-4">{related.image}</div>
+                      {isImageUrl(related.image) ? (
+                        <div className="relative w-full h-24 rounded-lg overflow-hidden mb-4">
+                          <Image src={related.image} alt={related.title} fill className="object-cover" />
+                        </div>
+                      ) : (
+                        <div className="text-4xl mb-4">{related.image}</div>
+                      )}
                       <h3 className="text-white font-semibold mb-2 group-hover:text-green-400 transition-colors text-sm">
                         {related.title}
                       </h3>
