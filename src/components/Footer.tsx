@@ -29,6 +29,7 @@ export default function Footer() {
                 { href: "/", label: "Home" },
                 { href: "/about", label: "About Us" },
                 { href: "/subsidiaries", label: "Our Companies" },
+                { href: "/office", label: "Digital Office" },
                 { href: "/blog", label: "Blog" },
                 { href: "/contact", label: "Contact" },
               ].map((link) => (

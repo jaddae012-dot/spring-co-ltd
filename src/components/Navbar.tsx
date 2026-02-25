@@ -39,14 +39,14 @@ export default function Navbar() {
               </Link>
             ))}
             <Link
-              href="/contact"
+              href="/office"
               className="ml-4 px-5 py-2.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-lg shadow-green-500/20"
             >
-              Get In Touch
+              Digital Office
             </Link>
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile menu button */}}
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden p-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
@@ -92,11 +92,11 @@ export default function Navbar() {
                 </Link>
               ))}
               <Link
-                href="/contact"
+                href="/office"
                 onClick={() => setIsOpen(false)}
                 className="mx-4 mt-2 px-5 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold text-center hover:from-green-600 hover:to-emerald-700 transition-all"
               >
-                Get In Touch
+                Digital Office
               </Link>
             </div>
           </div>
