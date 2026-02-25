@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAllBlogPosts, getBlogPostBySlug } from "@/lib/blog";
+import ShareButtons from "@/components/ShareButtons";
 import type { Metadata } from "next";
 
 function isImageUrl(str: string): boolean {
@@ -99,20 +100,25 @@ export default async function BlogPostPage({ params }: Props) {
             ))}
           </div>
 
-          {/* Tags / Share */}
-          <div className="glass rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 mb-16">
-            <div className="flex items-center gap-2">
-              <span className="text-gray-400 text-sm">Category:</span>
-              <span className="px-3 py-1 rounded-full bg-green-500/10 text-green-400 text-sm">
-                {post.category}
-              </span>
+          {/* Share & Category */}
+          <div className="glass rounded-2xl p-6 flex flex-col gap-5 mb-16">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400 text-sm">Category:</span>
+                <span className="px-3 py-1 rounded-full bg-green-500/10 text-green-400 text-sm">
+                  {post.category}
+                </span>
+              </div>
+              <Link
+                href="/blog"
+                className="text-green-400 hover:text-green-300 text-sm font-semibold transition-colors"
+              >
+                ← Back to All Posts
+              </Link>
             </div>
-            <Link
-              href="/blog"
-              className="text-green-400 hover:text-green-300 text-sm font-semibold transition-colors"
-            >
-              ← Back to All Posts
-            </Link>
+            <div className="border-t border-white/10 pt-5">
+              <ShareButtons title={post.title} slug={post.slug} />
+            </div>
           </div>
 
           {/* Related Posts */}
