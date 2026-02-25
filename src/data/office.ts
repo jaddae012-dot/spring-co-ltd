@@ -201,9 +201,9 @@ export const departments: Department[] = [
       "Community engagement",
     ],
     head: {
-      name: "PRO Director",
+      name: "JOSHUA ANAMAN",
       role: "Head of Public Relations",
-      email: "pro@springcoltd.com",
+      email: "lordmando247@gmail.com",
       avatar: "📢",
     },
     team: [
