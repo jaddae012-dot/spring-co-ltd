@@ -46,7 +46,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile menu button */}}
+          {/* Mobile menu button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden p-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
