@@ -37,7 +37,7 @@ export const departments: Department[] = [
         "Knowledge management & training",
       ],
       head: {
-        name: "R&D Director",
+        name: "BRIGHT YEBOAH",
         role: "Head of Research & Development",
         email: "rnd@springcoltd.com",
         avatar: "🔬",
