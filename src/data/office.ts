@@ -36,9 +36,9 @@ export const departments: Department[] = [
       "Business development & expansion",
     ],
     head: {
-      name: "CEO",
+      name: "JOSEPH ADDAE",
       role: "Chief Executive Officer",
-      email: "ceo@springcoltd.com",
+      email: "jaddae012@gmail.com",
       avatar: "👔",
     },
     team: [
