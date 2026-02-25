@@ -27,6 +27,30 @@ export const metadata: Metadata = {
     "FAST CLEANERS",
     "SPRING CO-OPERATIVE UNION",
   ],
+  metadataBase: new URL("https://spring-co-ltd.vercel.app"),
+  openGraph: {
+    title: "SPRING.CO.LTD — Building Tomorrow's Enterprises Today",
+    description:
+      "A dynamic multinational conglomerate driving innovation across agriculture, technology, education, logistics, and community development.",
+    url: "https://spring-co-ltd.vercel.app",
+    siteName: "SPRING.CO.LTD",
+    images: [
+      {
+        url: "/logos/SPRING.CO.LTD.png",
+        width: 512,
+        height: 512,
+        alt: "SPRING.CO.LTD Logo",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "SPRING.CO.LTD — Building Tomorrow's Enterprises Today",
+    description:
+      "A dynamic multinational conglomerate driving innovation across agriculture, technology, education, logistics, and community development.",
+    images: ["/logos/SPRING.CO.LTD.png"],
+  },
 };
 
 export default function RootLayout({

@@ -21,9 +21,38 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await getBlogPostBySlug(slug);
   if (!post) return { title: "Post Not Found" };
+
+  const url = `https://spring-co-ltd.vercel.app/blog/${slug}`;
+  const hasImage = post.image.startsWith("http://") || post.image.startsWith("https://");
+  const fallbackImage = "https://spring-co-ltd.vercel.app/logos/SPRING.CO.LTD.png";
+  const imageUrl = hasImage ? post.image : fallbackImage;
+
   return {
     title: `${post.title} — SPRING.CO.LTD Blog`,
     description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      url,
+      siteName: "SPRING.CO.LTD",
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+      type: "article",
+      publishedTime: post.date,
+      authors: [post.author],
+    },
+    twitter: {
+      card: hasImage ? "summary_large_image" : "summary",
+      title: post.title,
+      description: post.excerpt,
+      images: [imageUrl],
+    },
   };
 }
 
