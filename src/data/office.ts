@@ -20,6 +20,47 @@ export interface Department {
 }
 
 export const departments: Department[] = [
+    {
+      id: "rnd",
+      name: "Research & Development",
+      shortName: "R&D",
+      icon: "🔬",
+      color: "from-yellow-500 to-lime-600",
+      description:
+        "The R&D department drives innovation, new product development, and continuous improvement across all SPRING.CO.LTD subsidiaries.",
+      responsibilities: [
+        "Innovation strategy & planning",
+        "New product and service development",
+        "Process improvement & optimization",
+        "Technology scouting & adoption",
+        "Research partnerships & grants",
+        "Knowledge management & training",
+      ],
+      head: {
+        name: "R&D Director",
+        role: "Head of Research & Development",
+        email: "rnd@springcoltd.com",
+        avatar: "🔬",
+      },
+      team: [
+        {
+          name: "Innovation Lead",
+          role: "Innovation Projects",
+          email: "innovation@springcoltd.com",
+          avatar: "💡",
+        },
+        {
+          name: "Research Analyst",
+          role: "Market & Technical Research",
+          email: "research@springcoltd.com",
+          avatar: "📊",
+        },
+      ],
+      tools: [
+        { label: "Company Blog", href: "/blog", icon: "📝" },
+        { label: "Contact R&D", href: "/contact", icon: "📧" },
+      ],
+    },
   {
     id: "ceo-admin",
     name: "CEO & Administration",
