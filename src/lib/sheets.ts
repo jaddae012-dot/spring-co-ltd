@@ -55,7 +55,7 @@ export async function getSheetBlogPosts(sheetId: string): Promise<SheetBlogPost[
 
     // Google returns JSONP-like response: /*O_o*/\ngoogle.visualization.Query.setResponse({...});
     // Extract just the JSON object inside setResponse(...)
-    const match = text.match(/setResponse\((.+)\)/s);
+    const match = text.match(/setResponse\(([\s\S]+)\)/);
     if (!match || !match[1]) {
       console.error("Could not parse Google Sheets response");
       return [];

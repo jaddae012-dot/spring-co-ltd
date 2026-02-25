@@ -26,7 +26,7 @@ export async function GET() {
     info.responseStart = text.slice(0, 200);
 
     // Try to parse
-    const match = text.match(/setResponse\((.+)\)/s);
+    const match = text.match(/setResponse\(([\s\S]+)\)/);
     info.regexMatched = !!match;
 
     if (match && match[1]) {
