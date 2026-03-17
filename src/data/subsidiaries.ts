@@ -123,6 +123,7 @@ export const subsidiaries: Subsidiary[] = [
     longDescription:
       "FAST CLEANERS provides top-tier professional cleaning services for residential, commercial, and industrial clients. Our trained team uses eco-friendly products and modern equipment to deliver exceptional cleaning results. From routine office cleaning to deep cleaning and specialized services, we ensure every space sparkles.",
     icon: "✨",
+    logo: "/logos/fast-cleaners.png",
     color: "#06b6d4",
     gradient: "from-cyan-500 to-teal-600",
     services: [

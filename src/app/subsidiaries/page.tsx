@@ -44,7 +44,7 @@ export default function SubsidiariesPage() {
                 <div className="flex flex-col md:flex-row md:items-center gap-6">
                   <div className="flex-shrink-0">
                     <div
-                      className={`w-20 h-20 rounded-2xl ${sub.logo ? 'bg-white' : `bg-gradient-to-br ${sub.gradient}`} flex items-center justify-center text-4xl shadow-lg overflow-hidden`}
+                      className={`w-20 h-20 rounded-2xl ${sub.logo ? '' : `bg-gradient-to-br ${sub.gradient}`} flex items-center justify-center text-4xl shadow-lg overflow-hidden`}
                     >
                       {sub.logo ? <Image src={sub.logo} alt={sub.name} width={80} height={80} className="w-full h-full object-contain p-1" /> : sub.icon}
                     </div>

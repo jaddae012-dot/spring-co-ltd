@@ -54,7 +54,7 @@ export default function SubsidiaryNavbar({
           {/* Logo */}
           <Link href={links[0]?.href || "/"} className="flex items-center space-x-3 group">
             {logo ? (
-              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center overflow-hidden">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden">
                 <Image src={logo} alt={name} width={40} height={40} className="w-8 h-8 object-contain" />
               </div>
             ) : (

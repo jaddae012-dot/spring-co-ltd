@@ -1,10 +1,14 @@
 import SubsidiaryNavbar from "@/components/SubsidiaryNavbar";
 import SubsidiaryFooter from "@/components/SubsidiaryFooter";
+import { subsidiaries } from "@/data/subsidiaries";
 import type { Metadata } from "next";
 
+const subsidiary = subsidiaries.find((s) => s.id === "fast-cleaners");
+if (!subsidiary) throw new Error("Fast Cleaners subsidiary data not found");
+
 export const metadata: Metadata = {
-  title: { template: "%s — FAST CLEANERS", default: "FAST CLEANERS — Professional Cleaning Services" },
-  description: "Professional cleaning services for homes, offices, and commercial spaces across Ghana.",
+  title: { template: `%s — ${subsidiary.name}`, default: `${subsidiary.name} — ${subsidiary.description}` },
+  description: subsidiary.longDescription,
 };
 
 const navLinks = [
@@ -18,21 +22,17 @@ export default function FastCleanersLayout({ children }: { children: React.React
   return (
     <>
       <SubsidiaryNavbar
-        name="FAST CLEANERS"
-        shortName="Fast Cleaners"
-        icon="🧹"
-        color="#06b6d4"
-        gradient="from-cyan-500 to-teal-600"
+        {...subsidiary}
         links={navLinks}
         ctaLabel="Book Cleaning"
         ctaHref="/fast-cleaners/book"
       />
       {children}
       <SubsidiaryFooter
-        name="FAST CLEANERS"
-        color="#06b6d4"
+        name={subsidiary.name}
+        color={subsidiary.color}
         links={navLinks}
-        description="Professional cleaning services delivering spotless results for homes, offices, and commercial spaces across Ghana."
+        description={subsidiary.description}
       />
     </>
   );
