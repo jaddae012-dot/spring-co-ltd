@@ -34,37 +34,10 @@ export default function AdmissionsApplicationForm() {
     const form = e.currentTarget;
     const formData = new FormData(form);
 
-    const payload = {
-      fullName: String(formData.get("full_name") ?? ""),
-      email: String(formData.get("email") ?? ""),
-      phone: String(formData.get("phone") ?? ""),
-      dateOfBirth: String(formData.get("date_of_birth") ?? ""),
-      program: String(formData.get("program") ?? ""),
-      studyMode: String(formData.get("study_mode") ?? ""),
-      previousQualification: String(formData.get("previous_qualification") ?? ""),
-      additionalInfo: String(formData.get("additional_info") ?? ""),
-      certificateLinks: String(formData.get("certificate_links") ?? "")
-        .split(",")
-        .map((v) => v.trim())
-        .filter(Boolean),
-      idLinks: String(formData.get("id_links") ?? "")
-        .split(",")
-        .map((v) => v.trim())
-        .filter(Boolean),
-      photoLinks: String(formData.get("photo_links") ?? "")
-        .split(",")
-        .map((v) => v.trim())
-        .filter(Boolean),
-      certificateFileNames: certificateNames,
-      idFileNames: idNames,
-      photoFileNames: photoNames,
-    };
-
     try {
       const res = await fetch("/api/admissions", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: formData,
       });
 
       const data = await res.json();
@@ -162,8 +135,8 @@ export default function AdmissionsApplicationForm() {
       <div className="rounded-xl border border-white/10 p-5 space-y-5">
         <h3 className="text-white font-semibold">Document Uploads (Storage-Ready)</h3>
         <p className="text-xs text-gray-400">
-          Select files for reference and paste cloud storage links (Google Drive, Dropbox, OneDrive, etc.).
-          Links are saved with your application for review.
+          Files selected here upload directly to secure cloud storage during submission.
+          You can still add external links if needed.
         </p>
 
         <div>
@@ -171,6 +144,7 @@ export default function AdmissionsApplicationForm() {
           <input
             id="certificate_files"
             type="file"
+            name="certificate_files"
             multiple
             onChange={(e) => setCertificateFiles(e.target.files)}
             className="w-full text-sm text-gray-300 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-white"
@@ -192,6 +166,7 @@ export default function AdmissionsApplicationForm() {
           <input
             id="id_files"
             type="file"
+            name="id_files"
             multiple
             onChange={(e) => setIdFiles(e.target.files)}
             className="w-full text-sm text-gray-300 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-white"
@@ -213,6 +188,7 @@ export default function AdmissionsApplicationForm() {
           <input
             id="photo_files"
             type="file"
+            name="photo_files"
             multiple
             accept="image/*"
             onChange={(e) => setPhotoFiles(e.target.files)}
