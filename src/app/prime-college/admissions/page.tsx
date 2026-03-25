@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import FormWrapper from "@/components/FormWrapper";
+import AdmissionsApplicationForm from "@/components/AdmissionsApplicationForm";
 
 export const metadata: Metadata = { title: "Admissions" };
 
@@ -54,73 +54,7 @@ export default function AdmissionsPage() {
           {/* Application Form */}
           <div className="glass rounded-2xl p-8">
             <h2 className="text-2xl font-bold text-white mb-8">Application Form</h2>
-            <FormWrapper subject="Prime College - Admission Application" buttonText="Submit Application" buttonClass="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold text-lg transition-colors duration-200 shadow-lg">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Full Name *</label>
-                  <input type="text" name="full_name" required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500" />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Email Address *</label>
-                  <input type="email" name="email" required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500" />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Phone Number *</label>
-                  <input type="tel" name="phone" required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500" />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Date of Birth *</label>
-                  <input type="date" name="date_of_birth" required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500" />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">Program of Interest *</label>
-                <select name="program" required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500">
-                  <option value="">Select a program</option>
-                  <optgroup label="Business & Management">
-                    <option>Business Administration</option>
-                    <option>Accounting & Finance</option>
-                    <option>Marketing & Sales</option>
-                    <option>Project Management</option>
-                  </optgroup>
-                  <optgroup label="Information Technology">
-                    <option>Software Development</option>
-                    <option>Web Design & Development</option>
-                    <option>Cybersecurity</option>
-                    <option>Data Science & Analytics</option>
-                  </optgroup>
-                  <optgroup label="Creative Arts & Media">
-                    <option>Graphic Design</option>
-                    <option>Photography & Videography</option>
-                    <option>Digital Marketing</option>
-                    <option>Fashion Design</option>
-                  </optgroup>
-                  <optgroup label="Vocational Training">
-                    <option>Electrical Engineering</option>
-                    <option>Plumbing & Pipefitting</option>
-                    <option>Carpentry & Joinery</option>
-                    <option>Automotive Technology</option>
-                  </optgroup>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">Preferred Study Mode *</label>
-                <select name="study_mode" required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500">
-                  <option value="">Select mode</option>
-                  <option>Full-Time</option>
-                  <option>Part-Time</option>
-                  <option>Online</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">Previous Qualification</label>
-                <input type="text" name="previous_qualification" placeholder="e.g. WASSCE, HND, Diploma..." className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">Additional Information</label>
-                <textarea rows={4} name="additional_info" placeholder="Tell us about yourself or any questions..." className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
-              </div>
-            </FormWrapper>
+            <AdmissionsApplicationForm />
           </div>
         </div>
       </section>
