@@ -18,7 +18,8 @@ export interface UnifiedBlogPost {
 }
 
 const BLOG_DIR = path.join(process.cwd(), "content", "blog");
-const SHEET_ID = process.env.GOOGLE_SHEET_ID || "";
+const SHEET_ID =
+  process.env.GOOGLE_SHEET_ID || process.env.GOOGLE_SPREADSHEETS_ID || "";
 
 // Read all markdown files from content/blog/
 function getMarkdownFiles(): string[] {

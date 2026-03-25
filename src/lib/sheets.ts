@@ -164,3 +164,99 @@ export async function getSheetBlogPosts(sheetId: string): Promise<SheetBlogPost[
     return [];
   }
 }
+
+import { google } from "googleapis";
+
+const SPREADSHEET_ID =
+  process.env.GOOGLE_SHEET_ID || process.env.GOOGLE_SPREADSHEETS_ID || "";
+
+const SHEET_CACHE_TTL_MS = 60 * 1000;
+
+type SheetCacheEntry = {
+  expiresAt: number;
+  data: Array<{ [key: string]: any }>;
+};
+
+const sheetDataCache = new Map<string, SheetCacheEntry>();
+
+type GoogleSheetsScope = "read" | "write";
+
+async function getGoogleSheetsClient(scope: GoogleSheetsScope) {
+  const auth = new google.auth.GoogleAuth({
+    credentials: {
+      client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+      private_key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+    },
+    scopes:
+      scope === "write"
+        ? ["https://www.googleapis.com/auth/spreadsheets"]
+        : ["https://www.googleapis.com/auth/spreadsheets.readonly"],
+  });
+
+  return google.sheets({ version: "v4", auth });
+}
+
+export async function getGoogleSheetData(sheetName: string) {
+  const cached = sheetDataCache.get(sheetName);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.data;
+  }
+
+  try {
+    const sheets = await getGoogleSheetsClient("read");
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: sheetName,
+    });
+
+    const rows = response.data.values;
+    if (rows && rows.length) {
+      const headers = rows[0];
+      const mappedRows = rows.slice(1).map((row) => {
+        const rowData: { [key: string]: any } = {};
+        headers.forEach((header, index) => {
+          rowData[header] = row[index];
+        });
+        return rowData;
+      });
+
+      sheetDataCache.set(sheetName, {
+        expiresAt: Date.now() + SHEET_CACHE_TTL_MS,
+        data: mappedRows,
+      });
+
+      return mappedRows;
+    }
+
+    sheetDataCache.set(sheetName, {
+      expiresAt: Date.now() + SHEET_CACHE_TTL_MS,
+      data: [],
+    });
+
+    return [];
+  } catch (error) {
+    console.error("Error fetching Google Sheet data:", error);
+    throw new Error("Could not fetch sheet data.");
+  }
+}
+
+export async function appendGoogleSheetRow(sheetName: string, row: string[]) {
+  try {
+    const sheets = await getGoogleSheetsClient("write");
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${sheetName}!A1`,
+      valueInputOption: "USER_ENTERED",
+      insertDataOption: "INSERT_ROWS",
+      requestBody: {
+        values: [row],
+      },
+    });
+
+    sheetDataCache.delete(sheetName);
+  } catch (error) {
+    console.error("Error appending Google Sheet row:", error);
+    throw new Error("Could not save sheet data.");
+  }
+}

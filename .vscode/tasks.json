@@ -1,0 +1,21 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "git-status-check",
+			"type": "shell",
+			"command": "git",
+			"args": [
+				"status",
+				"--short"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "git-commit-and-push",
+			"type": "shell",
+			"command": "git add .; git commit -m \"feat: prime college auth, dashboards, resources, and login speed improvements\"; git push",
+			"isBackground": false
+		}
+	]
+}
