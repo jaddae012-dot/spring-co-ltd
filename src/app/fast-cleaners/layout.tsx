@@ -5,10 +5,11 @@ import type { Metadata } from "next";
 
 const subsidiary = subsidiaries.find((s) => s.id === "fast-cleaners");
 if (!subsidiary) throw new Error("Fast Cleaners subsidiary data not found");
+const fastCleaners = subsidiary;
 
 export const metadata: Metadata = {
-  title: { template: `%s — ${subsidiary.name}`, default: `${subsidiary.name} — ${subsidiary.description}` },
-  description: subsidiary.longDescription,
+  title: { template: `%s — ${fastCleaners.name}`, default: `${fastCleaners.name} — ${fastCleaners.description}` },
+  description: fastCleaners.longDescription,
 };
 
 const navLinks = [
@@ -22,17 +23,22 @@ export default function FastCleanersLayout({ children }: { children: React.React
   return (
     <>
       <SubsidiaryNavbar
-        {...subsidiary}
+        name={fastCleaners.name}
+        shortName={fastCleaners.shortName}
+        icon={fastCleaners.icon}
+        logo={fastCleaners.logo}
+        color={fastCleaners.color}
+        gradient={fastCleaners.gradient}
         links={navLinks}
         ctaLabel="Book Cleaning"
         ctaHref="/fast-cleaners/book"
       />
       {children}
       <SubsidiaryFooter
-        name={subsidiary.name}
-        color={subsidiary.color}
+        name={fastCleaners.name}
+        color={fastCleaners.color}
         links={navLinks}
-        description={subsidiary.description}
+        description={fastCleaners.description}
       />
     </>
   );
