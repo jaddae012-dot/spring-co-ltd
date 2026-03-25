@@ -123,7 +123,10 @@ export default async function TutorDashboard() {
 
   const firstName = getField(tutorRecord, ["FirstName", "First Name"]);
   const lastName = getField(tutorRecord, ["LastName", "Last Name"]);
-  const fullName = `${firstName} ${lastName}`.trim() || "Tutor";
+  const rowFullName =
+    getField(tutorRecord, ["Name", "FullName", "TutorName"]) ||
+    `${firstName} ${lastName}`.trim();
+  const fullName = (session.name || rowFullName || "Tutor").trim();
   const tutorId = getField(tutorRecord, ["TutorID", "Tutor ID", "ID"]);
   const email = getField(tutorRecord, ["Email", "Email Address"]);
   const phone = getField(tutorRecord, ["Phone", "Phone Number", "Contact"]);
@@ -166,9 +169,11 @@ export default async function TutorDashboard() {
     getField(tutorRecord, ["Announcement3", "TutorNotice3", "Notice3"]),
   ].filter(Boolean);
 
-  const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`
-    .trim()
-    .toUpperCase() || "TR";
+  const nameParts = fullName.split(/\s+/).filter(Boolean);
+  const initials =
+    ((nameParts[0]?.charAt(0) || "") +
+      (nameParts[1]?.charAt(0) || nameParts[0]?.charAt(1) || ""))
+      .toUpperCase() || "TR";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-900 text-white pt-24">

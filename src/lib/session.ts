@@ -6,6 +6,7 @@ import { sessionOptions } from "./session-options";
 export interface SessionData {
   isLoggedIn: boolean;
   id: string;
+  name?: string;
   userType: "student" | "tutor";
 }
 

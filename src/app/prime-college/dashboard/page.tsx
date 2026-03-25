@@ -102,7 +102,10 @@ export default async function StudentDashboard() {
 
   const firstName = getField(studentData, ["FirstName", "First Name"]);
   const lastName = getField(studentData, ["LastName", "Last Name"]);
-  const fullName = `${firstName} ${lastName}`.trim() || "Student";
+  const rowFullName =
+    getField(studentData, ["Name", "FullName", "StudentName"]) ||
+    `${firstName} ${lastName}`.trim();
+  const fullName = (session.name || rowFullName || "Student").trim();
   const studentId = getField(studentData, ["StudentID", "Student ID", "ID"]);
   const program = getField(studentData, ["Program", "Course", "Programme"]);
   const email = getField(studentData, ["Email", "Email Address"]);
@@ -142,9 +145,11 @@ export default async function StudentDashboard() {
     getField(studentData, ["Announcement3", "Notice3"]),
   ].filter(Boolean);
 
-  const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`
-    .trim()
-    .toUpperCase() || "ST";
+  const nameParts = fullName.split(/\s+/).filter(Boolean);
+  const initials =
+    ((nameParts[0]?.charAt(0) || "") +
+      (nameParts[1]?.charAt(0) || nameParts[0]?.charAt(1) || ""))
+      .toUpperCase() || "ST";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white pt-24">

@@ -32,6 +32,15 @@ function getField(row: Record<string, unknown>, aliases: string[]): string {
   return "";
 }
 
+function getDisplayName(row: Record<string, unknown>, fallback: string): string {
+  const fullName = getField(row, ["Name", "FullName", "StudentName", "TutorName"]);
+  const firstName = getField(row, ["FirstName", "First Name"]);
+  const lastName = getField(row, ["LastName", "Last Name"]);
+  const combined = `${firstName} ${lastName}`.trim();
+
+  return fullName || combined || fallback;
+}
+
 export async function POST(req: NextRequest) {
   const session = await getSession();
   const { id, pin } = await req.json();
@@ -51,6 +60,8 @@ export async function POST(req: NextRequest) {
 
     let user = null;
     let userType: "student" | "tutor" | null = null;
+    let matchedSheetId = "";
+    let matchedDisplayName = "";
 
     // Check if it's a student
     const student = students.find((row: any) => {
@@ -61,10 +72,17 @@ export async function POST(req: NextRequest) {
         "Password",
         "Passcode",
       ]);
-      return (
+      const isMatch = (
         normalizeId(studentId) === normalizedId &&
         normalizePin(studentPin) === normalizedPin
       );
+
+      if (isMatch) {
+        matchedSheetId = normalizeText(studentId);
+        matchedDisplayName = getDisplayName(row, "Student");
+      }
+
+      return isMatch;
     });
     if (student) {
       user = student;
@@ -76,10 +94,17 @@ export async function POST(req: NextRequest) {
       const tutor = tutors.find((row: any) => {
         const tutorId = getField(row, ["TutorID", "Tutor ID", "ID"]);
         const tutorPin = getField(row, ["PIN", "Pin", "Password", "Passcode"]);
-        return (
+        const isMatch = (
           normalizeId(tutorId) === normalizedId &&
           normalizePin(tutorPin) === normalizedPin
         );
+
+        if (isMatch) {
+          matchedSheetId = normalizeText(tutorId);
+          matchedDisplayName = getDisplayName(row, "Tutor");
+        }
+
+        return isMatch;
       });
       if (tutor) {
         user = tutor;
@@ -89,7 +114,8 @@ export async function POST(req: NextRequest) {
 
     if (user && userType) {
       session.isLoggedIn = true;
-      session.id = normalizeText(id);
+      session.id = matchedSheetId || normalizeText(id);
+      session.name = matchedDisplayName || undefined;
       session.userType = userType;
       await session.save();
 
