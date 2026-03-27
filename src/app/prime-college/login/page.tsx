@@ -9,7 +9,6 @@ export default function LoginPage() {
   const [id, setId] = useState("");
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -21,7 +20,6 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     setError("");
-    setSuccess("");
 
     try {
       const res = await fetch("/api/auth/login", {
@@ -32,23 +30,19 @@ export default function LoginPage() {
 
       if (res.ok) {
         const { userType } = await res.json();
-        setSuccess("Login successful. Redirecting...");
 
         if (userType === "student") {
           router.replace("/prime-college/dashboard");
         } else if (userType === "tutor") {
           router.replace("/prime-college/tutor/dashboard");
         } else {
-          setSuccess("");
           setError("Invalid user type received.");
         }
       } else {
         const { message } = await res.json();
-        setSuccess("");
         setError(message || "Login failed. Please check your credentials.");
       }
     } catch (error) {
-      setSuccess("");
       setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
@@ -69,11 +63,6 @@ export default function LoginPage() {
           {error && (
             <div className="p-3 bg-red-500/20 text-red-300 rounded-lg text-center">
               {error}
-            </div>
-          )}
-          {success && (
-            <div className="p-3 bg-emerald-500/20 text-emerald-300 rounded-lg text-center animate-pulse">
-              {success}
             </div>
           )}
           <div>
@@ -116,7 +105,7 @@ export default function LoginPage() {
               className="w-full px-8 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold text-lg transition-colors duration-200 shadow-lg shadow-blue-500/25 disabled:opacity-50"
               disabled={isLoading}
             >
-              {isLoading ? (success ? "Redirecting..." : "Logging in...") : "Login"}
+              {isLoading ? "Logging in..." : "Login"}
             </button>
           </div>
         </form>
