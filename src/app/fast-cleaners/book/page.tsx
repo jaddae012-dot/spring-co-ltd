@@ -82,6 +82,22 @@ export default function BookCleaningPage() {
                 </select>
               </div>
 
+              <div className="rounded-xl border border-white/10 p-5 space-y-4">
+                <h3 className="text-white font-semibold">Referral</h3>
+                <p className="text-xs text-gray-400">
+                  If someone referred you, enter their code so we can apply any eligible referral rewards.
+                </p>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Referral Code</label>
+                  <input
+                    type="text"
+                    name="referral_code"
+                    placeholder="e.g. CLEAN2026"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm text-gray-400 mb-2">Special Instructions</label>
                 <textarea rows={4} name="special_instructions" placeholder="Any specific areas to focus on, access instructions, etc..." className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500" />

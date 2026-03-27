@@ -27,6 +27,7 @@ export default function FastCleanersLayout({ children }: { children: React.React
         shortName={fastCleaners.shortName}
         icon={fastCleaners.icon}
         logo={fastCleaners.logo}
+        logoSize="lg"
         color={fastCleaners.color}
         gradient={fastCleaners.gradient}
         links={navLinks}

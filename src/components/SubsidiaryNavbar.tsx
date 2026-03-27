@@ -13,6 +13,7 @@ interface SubsidiaryNavbarProps {
   name: string;
   shortName: string;
   logo?: string;
+  logoSize?: "md" | "lg";
   icon: string;
   color: string;
   gradient: string;
@@ -24,6 +25,7 @@ interface SubsidiaryNavbarProps {
 export default function SubsidiaryNavbar({
   name,
   logo,
+  logoSize = "md",
   icon,
   color,
   gradient,
@@ -32,6 +34,8 @@ export default function SubsidiaryNavbar({
   ctaHref,
 }: SubsidiaryNavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const logoSizeClass = logoSize === "lg" ? "w-14 h-14" : "w-10 h-10";
+  const logoPixelSize = logoSize === "lg" ? 56 : 40;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass glass-blur">
@@ -54,8 +58,8 @@ export default function SubsidiaryNavbar({
           {/* Logo */}
           <Link href={links[0]?.href || "/"} className="flex items-center space-x-3 group">
             {logo ? (
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden">
-                <Image src={logo} alt={name} width={40} height={40} className="w-10 h-10 object-contain" />
+              <div className={`${logoSizeClass} rounded-xl flex items-center justify-center overflow-hidden`}>
+                <Image src={logo} alt={name} width={logoPixelSize} height={logoPixelSize} className="w-full h-full object-contain" />
               </div>
             ) : (
               <div
