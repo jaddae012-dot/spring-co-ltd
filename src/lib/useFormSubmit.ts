@@ -7,11 +7,41 @@ const WEB3FORMS_KEY = "4983b554-24f9-4631-a432-55c2c2cba8fe";
 interface UseFormSubmitOptions {
   /** Subject line for the email */
   subject: string;
+  /** Optional local API endpoint to submit form data to */
+  apiEndpoint?: string;
+  /** Whether to submit to Web3Forms */
+  submitToWeb3Forms?: boolean;
   /** Callback after successful submission */
   onSuccess?: () => void;
 }
 
-export function useFormSubmit({ subject, onSuccess }: UseFormSubmitOptions) {
+function cloneFormData(source: FormData): FormData {
+  const copy = new FormData();
+  source.forEach((value, key) => copy.append(key, value));
+  return copy;
+}
+
+function formDataToJson(formData: FormData): Record<string, string> {
+  const json: Record<string, string> = {};
+
+  formData.forEach((value, key) => {
+    if (typeof value === "string") {
+      json[key] = value;
+      return;
+    }
+
+    json[key] = value.name;
+  });
+
+  return json;
+}
+
+export function useFormSubmit({
+  subject,
+  apiEndpoint,
+  submitToWeb3Forms = true,
+  onSuccess,
+}: UseFormSubmitOptions) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
 
@@ -21,21 +51,53 @@ export function useFormSubmit({ subject, onSuccess }: UseFormSubmitOptions) {
 
     const form = e.currentTarget;
     const formData = new FormData(form);
-    formData.append("access_key", WEB3FORMS_KEY);
-    formData.append("subject", subject);
-    formData.append("from_name", "SPRING.CO.LTD Website");
 
     try {
-      const res = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        body: formData,
-      });
+      const results = await Promise.allSettled([
+        submitToWeb3Forms
+          ? (async () => {
+              const web3FormData = cloneFormData(formData);
+              web3FormData.append("access_key", WEB3FORMS_KEY);
+              web3FormData.append("subject", subject);
+              web3FormData.append("from_name", "SPRING.CO.LTD Website");
 
-      const data = await res.json();
+              const res = await fetch("https://api.web3forms.com/submit", {
+                method: "POST",
+                body: web3FormData,
+              });
 
-      if (data.success) {
+              const data = await res.json();
+              return Boolean(data.success);
+            })()
+          : Promise.resolve(false),
+        apiEndpoint
+          ? (async () => {
+              const res = await fetch(apiEndpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formDataToJson(formData)),
+              });
+
+              return res.ok;
+            })()
+          : Promise.resolve(false),
+      ]);
+
+      const successCount = results.reduce((count, result) => {
+        if (result.status === "fulfilled" && result.value) {
+          return count + 1;
+        }
+
+        return count;
+      }, 0);
+
+      if (successCount > 0) {
         setStatus("success");
-        setMessage("Submitted successfully! We'll get back to you soon.");
+        setMessage(
+          successCount === 2
+            ? "Submitted successfully! We'll get back to you soon."
+            : "Submitted successfully, but one delivery channel had an issue."
+        );
         form.reset();
         onSuccess?.();
       } else {

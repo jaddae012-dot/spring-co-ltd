@@ -14,7 +14,13 @@ export default function BookCleaningPage() {
           </div>
 
           <div className="glass rounded-2xl p-8">
-            <FormWrapper subject="Fast Cleaners - Booking" buttonText="Confirm Booking" buttonClass="w-full py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-teal-600 text-white font-semibold text-lg transition-colors duration-200 shadow-lg">
+            <FormWrapper
+              subject="Fast Cleaners - Booking"
+              apiEndpoint="/api/fast-cleaners/bookings"
+              submitToWeb3Forms={true}
+              buttonText="Confirm Booking"
+              buttonClass="w-full py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-teal-600 text-white font-semibold text-lg transition-colors duration-200 shadow-lg"
+            >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm text-gray-400 mb-2">Full Name *</label>

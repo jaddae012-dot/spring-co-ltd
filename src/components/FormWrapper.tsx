@@ -8,10 +8,23 @@ interface FormWrapperProps {
   children: React.ReactNode;
   buttonText: string;
   buttonClass: string;
+  apiEndpoint?: string;
+  submitToWeb3Forms?: boolean;
 }
 
-export default function FormWrapper({ subject, children, buttonText, buttonClass }: FormWrapperProps) {
-  const { status, message, handleSubmit } = useFormSubmit({ subject });
+export default function FormWrapper({
+  subject,
+  children,
+  buttonText,
+  buttonClass,
+  apiEndpoint,
+  submitToWeb3Forms,
+}: FormWrapperProps) {
+  const { status, message, handleSubmit } = useFormSubmit({
+    subject,
+    apiEndpoint,
+    submitToWeb3Forms,
+  });
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
