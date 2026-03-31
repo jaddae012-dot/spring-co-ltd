@@ -4,6 +4,19 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
+const themeInitScript = `(() => {
+  try {
+    const key = 'spring-theme';
+    const saved = localStorage.getItem(key);
+    const systemLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+    const theme = saved === 'light' || saved === 'dark' ? saved : (systemLight ? 'light' : 'dark');
+    const root = document.documentElement;
+    root.classList.remove('theme-dark', 'theme-light');
+    root.classList.add(theme === 'light' ? 'theme-light' : 'theme-dark');
+    root.setAttribute('data-theme', theme);
+  } catch (_) {}
+})();`;
+
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
@@ -59,9 +72,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body
-        className={`${inter.className} bg-[#0a1628] text-white antialiased`}
+        className={`${inter.className} bg-[var(--app-bg)] text-[var(--app-text)] antialiased app-theme-transition`}
       >
         <Navbar />
         <main className="min-h-screen">{children}</main>

@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import ThemeToggle from "@/components/ThemeToggle";
 
 interface SubNavLink {
   href: string;
@@ -22,6 +24,16 @@ interface SubsidiaryNavbarProps {
   ctaHref?: string;
 }
 
+function getBrandTextClass(color: string): string {
+  const normalized = color.toLowerCase();
+  if (normalized === "#22c55e") return "text-green-500";
+  if (normalized === "#b91c1c") return "text-red-700";
+  if (normalized === "#a855f7") return "text-purple-500";
+  if (normalized === "#eab308") return "text-yellow-500";
+  if (normalized === "#3b82f6") return "text-blue-500";
+  return "text-white";
+}
+
 export default function SubsidiaryNavbar({
   name,
   logo,
@@ -34,8 +46,32 @@ export default function SubsidiaryNavbar({
   ctaHref,
 }: SubsidiaryNavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
   const logoSizeClass = logoSize === "lg" ? "w-14 h-14" : "w-10 h-10";
   const logoPixelSize = logoSize === "lg" ? 56 : 40;
+  const brandTextClass = getBrandTextClass(color);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      document.body.style.overflow = "";
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isOpen]);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass glass-blur">
@@ -51,6 +87,7 @@ export default function SubsidiaryNavbar({
             </svg>
             SPRING.CO.LTD
           </Link>
+          <ThemeToggle compact />
         </div>
 
         {/* Main navbar */}
@@ -68,7 +105,7 @@ export default function SubsidiaryNavbar({
                 {icon}
               </div>
             )}
-            <span className="text-lg font-bold tracking-tight" style={{ color }}>
+            <span className={`text-lg font-bold tracking-tight ${brandTextClass}`}>
               {name}
             </span>
           </Link>
@@ -87,7 +124,7 @@ export default function SubsidiaryNavbar({
             {ctaLabel && ctaHref && (
               <Link
                 href={ctaHref}
-                className={`ml-3 px-5 py-2 rounded-xl bg-gradient-to-r ${gradient} text-white text-sm font-semibold transition-colors duration-200`}
+                className={`ml-3 px-5 py-2 rounded-xl bg-gradient-to-r ${gradient} text-white text-sm font-semibold shadow-lg transition-colors duration-200`}
               >
                 {ctaLabel}
               </Link>
@@ -112,8 +149,17 @@ export default function SubsidiaryNavbar({
 
         {/* Mobile Nav */}
         {isOpen && (
-          <div className="md:hidden pb-4 border-t border-white/10">
+          <div className="md:hidden pb-4 border-t border-white/10 animate-in fade-in duration-200">
             <div className="flex flex-col space-y-1 pt-3">
+              {ctaLabel && ctaHref && (
+                <Link
+                  href={ctaHref}
+                  onClick={() => setIsOpen(false)}
+                  className={`mx-4 mb-2 px-5 py-3 rounded-xl bg-gradient-to-r ${gradient} text-white text-sm font-semibold text-center transition-colors`}
+                >
+                  {ctaLabel}
+                </Link>
+              )}
               {links.map((link) => (
                 <Link
                   key={link.href}
@@ -124,15 +170,9 @@ export default function SubsidiaryNavbar({
                   {link.label}
                 </Link>
               ))}
-              {ctaLabel && ctaHref && (
-                <Link
-                  href={ctaHref}
-                  onClick={() => setIsOpen(false)}
-                  className={`mx-4 mt-2 px-5 py-3 rounded-xl bg-gradient-to-r ${gradient} text-white text-sm font-semibold text-center transition-colors`}
-                >
-                  {ctaLabel}
-                </Link>
-              )}
+              <div className="px-4 pt-2">
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         )}

@@ -1,4 +1,4 @@
-import { getAllBlogPosts, getBlogCategories } from "@/lib/blog";
+import { getAllBlogPosts, getBlogCategories, getBlogTags } from "@/lib/blog";
 import BlogPageClient from "@/components/BlogPageClient";
 import type { Metadata } from "next";
 
@@ -26,10 +26,11 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function BlogPage() {
-  const [posts, categories] = await Promise.all([
+  const [posts, categories, tags] = await Promise.all([
     getAllBlogPosts(),
     getBlogCategories(),
+    getBlogTags(),
   ]);
 
-  return <BlogPageClient posts={posts} categories={categories} />;
+  return <BlogPageClient posts={posts} categories={categories} tags={tags} />;
 }

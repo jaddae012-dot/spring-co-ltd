@@ -10,6 +10,7 @@ export interface UnifiedBlogPost {
   excerpt: string;
   content: string[];
   category: string;
+  tags: string[];
   author: string;
   date: string;
   readTime: string;
@@ -40,6 +41,10 @@ function parsePost(filePath: string): UnifiedBlogPost | null {
   const slug =
     data.slug ||
     path.basename(filePath, ".md");
+  const tags = (data.tags || "")
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
 
   return {
     id: slug,
@@ -48,6 +53,7 @@ function parsePost(filePath: string): UnifiedBlogPost | null {
     excerpt: data.excerpt || "",
     content: markdownToParas(content),
     category: data.category || "Company News",
+    tags,
     author: data.author || "SPRING.CO.LTD Team",
     date: data.date || new Date().toISOString().split("T")[0],
     readTime: data.readTime || "3 min read",
@@ -67,6 +73,7 @@ export async function getAllBlogPosts(): Promise<UnifiedBlogPost[]> {
     excerpt: p.excerpt,
     content: p.content,
     category: p.category,
+    tags: p.tags,
     author: p.author,
     date: p.date,
     readTime: p.readTime,
@@ -83,7 +90,11 @@ export async function getAllBlogPosts(): Promise<UnifiedBlogPost[]> {
   // 3. Combine (Form posts override MD posts with same slug)
   const formSlugs = new Set(formPosts.map((p) => p.slug));
   const uniqueMdPosts = mdPosts.filter((p) => !formSlugs.has(p.slug));
-  const allPosts = [...formPosts, ...uniqueMdPosts];
+  const allPosts = [...formPosts, ...uniqueMdPosts].filter((post) => {
+    const publishedAt = new Date(post.date).getTime();
+    if (!Number.isFinite(publishedAt)) return true;
+    return publishedAt <= Date.now();
+  });
 
   return allPosts.sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -103,5 +114,13 @@ export async function getBlogCategories(): Promise<string[]> {
   const posts = await getAllBlogPosts();
   const cats = new Set(posts.map((p) => p.category));
   return ["All", ...Array.from(cats)];
+}
+
+export async function getBlogTags(): Promise<string[]> {
+  const posts = await getAllBlogPosts();
+  const tags = new Set(
+    posts.flatMap((post) => post.tags).map((tag) => tag.trim()).filter(Boolean)
+  );
+  return ["All", ...Array.from(tags)];
 }
 

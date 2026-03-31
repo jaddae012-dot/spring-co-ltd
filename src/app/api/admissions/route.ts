@@ -2,6 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { appendGoogleSheetRow } from "@/lib/sheets";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 
+const ADMISSIONS_WEBHOOK_URL = process.env.ADMISSIONS_WEBHOOK_URL || "";
+
+type AdmissionsNotificationPayload = {
+  applicationRef: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  program: string;
+  studyMode: string;
+  status: string;
+  submittedAt: string;
+};
+
 function normalize(value: unknown): string {
   return String(value ?? "").trim();
 }
@@ -56,9 +69,43 @@ function buildPhotoPreviewFormula(photoLink: string): string {
   return `=IFERROR(IMAGE("${escapeFormulaValue(cleanLink)}"), "")`;
 }
 
+function generateApplicationReference(program: string): string {
+  const normalizedProgram = normalize(program)
+    .split(/\s+/)
+    .map((token) => token.charAt(0).toUpperCase())
+    .join("")
+    .slice(0, 4)
+    .padEnd(2, "X");
+  const dateStamp = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const randomCode = Math.random().toString(36).slice(2, 7).toUpperCase();
+  return `PC-${normalizedProgram}-${dateStamp}-${randomCode}`;
+}
+
+async function sendAdmissionsNotification(payload: AdmissionsNotificationPayload) {
+  if (!ADMISSIONS_WEBHOOK_URL) return;
+
+  try {
+    await fetch(ADMISSIONS_WEBHOOK_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        event: "prime_college.admission_submitted",
+        channels: ["email", "sms"],
+        payload,
+      }),
+      cache: "no-store",
+    });
+  } catch {
+    // Notifications are best-effort and should not block application submission.
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
+    const submittedAt = new Date().toISOString();
 
     const fullName = normalize(formData.get("full_name"));
     const email = normalize(formData.get("email"));
@@ -95,6 +142,8 @@ export async function POST(req: NextRequest) {
     const idLinks = idLinksArray.join(", ");
     const photoLinks = photoLinksArray.join(", ");
     const photoPreviewFormula = buildPhotoPreviewFormula(photoLinksArray[0] ?? "");
+    const applicationRef = generateApplicationReference(program);
+    const workflowStatus = "Submitted";
 
     if (!fullName || !email || !phone || !dateOfBirth || !program || !studyMode) {
       return NextResponse.json(
@@ -104,7 +153,8 @@ export async function POST(req: NextRequest) {
     }
 
     await appendGoogleSheetRow("applications", [
-      new Date().toISOString(),
+      submittedAt,
+      applicationRef,
       fullName,
       email,
       phone,
@@ -120,11 +170,39 @@ export async function POST(req: NextRequest) {
       photoFileNames,
       photoLinks,
       photoPreviewFormula,
-      "Submitted",
+      workflowStatus,
+      submittedAt,
+    ]);
+
+    const notificationPayload: AdmissionsNotificationPayload = {
+      applicationRef,
+      fullName,
+      email,
+      phone,
+      program,
+      studyMode,
+      status: workflowStatus,
+      submittedAt,
+    };
+
+    await Promise.allSettled([
+      sendAdmissionsNotification(notificationPayload),
+      appendGoogleSheetRow("applications_events", [
+        submittedAt,
+        applicationRef,
+        workflowStatus,
+        "system",
+        "Application submitted by applicant",
+        email,
+        phone,
+      ]),
     ]);
 
     return NextResponse.json({
       message: "Application submitted successfully. We will contact you soon.",
+      applicationRef,
+      workflowStatus,
+      submittedAt,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not submit application.";
@@ -133,7 +211,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           message:
-            "The applications sheet does not exist yet. Create a tab named applications with headers: SubmittedAt, FullName, Email, Phone, DateOfBirth, Program, StudyMode, PreviousQualification, AdditionalInfo, CertificateFileNames, CertificateLinks, IDFileNames, IDLinks, PhotoFileNames, PhotoLinks, PhotoPreview, Status.",
+            "The applications sheet does not exist yet. Create a tab named applications with headers: SubmittedAt, ApplicationRef, FullName, Email, Phone, DateOfBirth, Program, StudyMode, PreviousQualification, AdditionalInfo, CertificateFileNames, CertificateLinks, IDFileNames, IDLinks, PhotoFileNames, PhotoLinks, PhotoPreview, Status, LastStatusUpdateAt.",
         },
         { status: 400 }
       );

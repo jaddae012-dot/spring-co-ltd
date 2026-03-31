@@ -8,6 +8,8 @@ type SubmitStatus = "idle" | "loading" | "success" | "error";
 export default function AdmissionsApplicationForm() {
   const [status, setStatus] = useState<SubmitStatus>("idle");
   const [message, setMessage] = useState("");
+  const [applicationRef, setApplicationRef] = useState("");
+  const [workflowStatus, setWorkflowStatus] = useState("");
 
   const [certificateFiles, setCertificateFiles] = useState<FileList | null>(null);
   const [idFiles, setIdFiles] = useState<FileList | null>(null);
@@ -30,6 +32,8 @@ export default function AdmissionsApplicationForm() {
     e.preventDefault();
     setStatus("loading");
     setMessage("");
+    setApplicationRef("");
+    setWorkflowStatus("");
 
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -50,6 +54,8 @@ export default function AdmissionsApplicationForm() {
 
       setStatus("success");
       setMessage(data.message || "Application submitted successfully.");
+      setApplicationRef(data.applicationRef || "");
+      setWorkflowStatus(data.workflowStatus || "Submitted");
       form.reset();
       setCertificateFiles(null);
       setIdFiles(null);
@@ -125,6 +131,21 @@ export default function AdmissionsApplicationForm() {
       <div>
         <label htmlFor="previous_qualification" className="block text-sm text-gray-400 mb-2">Previous Qualification</label>
         <input id="previous_qualification" type="text" name="previous_qualification" placeholder="e.g. WASSCE, HND, Diploma..." className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500" />
+      </div>
+
+      <div>
+        <label htmlFor="consent" className="flex items-start gap-3 text-sm text-gray-300">
+          <input
+            id="consent"
+            name="consent"
+            type="checkbox"
+            required
+            className="mt-1 h-4 w-4 rounded border-white/20 bg-white/5 text-blue-500 focus:ring-blue-500"
+          />
+          <span>
+            I confirm the details provided are accurate and authorize Prime College to contact me by email and SMS regarding this application.
+          </span>
+        </label>
       </div>
 
       <div>
@@ -208,6 +229,16 @@ export default function AdmissionsApplicationForm() {
       </div>
 
       <FormStatus status={status} message={message} />
+
+      {status === "success" && applicationRef ? (
+        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-100">
+          <p className="font-semibold">Application Reference: {applicationRef}</p>
+          <p className="mt-1">Current workflow status: {workflowStatus || "Submitted"}</p>
+          <p className="mt-1 text-emerald-200/90">
+            Keep this reference. You can use it in the admissions tracker below.
+          </p>
+        </div>
+      ) : null}
 
       <button
         type="submit"

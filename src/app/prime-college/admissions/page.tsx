@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import AdmissionsApplicationForm from "@/components/AdmissionsApplicationForm";
+import AdmissionsStatusTracker from "@/components/AdmissionsStatusTracker";
 
 export const metadata: Metadata = { title: "Admissions" };
 
@@ -12,7 +13,7 @@ export default function AdmissionsPage() {
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
               <span className="text-blue-500">Admissions</span>
             </h1>
-            <p className="text-gray-400 text-lg">Begin your journey at Prime College. Follow the steps below and submit your application.</p>
+            <p className="text-gray-400 text-lg">Begin your journey at Prime College. Submit once, get a tracking reference, and receive workflow updates by email/SMS.</p>
           </div>
 
           {/* Steps */}
@@ -21,7 +22,7 @@ export default function AdmissionsPage() {
               { step: "01", title: "Choose Program", desc: "Browse our programs and select the course that matches your goals." },
               { step: "02", title: "Fill Application", desc: "Complete the application form below with your details." },
               { step: "03", title: "Submit Documents", desc: "Upload or deliver your certificates and ID documents." },
-              { step: "04", title: "Get Admitted", desc: "Receive your admission letter and begin your studies." },
+              { step: "04", title: "Track & Get Admitted", desc: "Use your reference to track status updates, then receive your admission decision." },
             ].map((s) => (
               <div key={s.step} className="glass rounded-2xl p-6">
                 <div className="text-3xl font-black text-blue-500 mb-3">{s.step}</div>
@@ -55,6 +56,10 @@ export default function AdmissionsPage() {
           <div className="glass rounded-2xl p-8">
             <h2 className="text-2xl font-bold text-white mb-8">Application Form</h2>
             <AdmissionsApplicationForm />
+          </div>
+
+          <div className="mt-10">
+            <AdmissionsStatusTracker />
           </div>
         </div>
       </section>

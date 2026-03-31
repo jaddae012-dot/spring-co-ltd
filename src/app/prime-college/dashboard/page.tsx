@@ -15,6 +15,13 @@ type ResourceItem = {
   uploadedBy: string;
 };
 
+type AdmissionSnapshot = {
+  applicationRef: string;
+  status: string;
+  submittedAt: string;
+  lastStatusUpdateAt: string;
+};
+
 function normalizeId(value: unknown): string {
   return String(value ?? "").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
 }
@@ -80,6 +87,64 @@ async function getResources(): Promise<ResourceItem[]> {
   }
 }
 
+async function getLatestAdmissionByEmail(email: string): Promise<AdmissionSnapshot | null> {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  if (!normalizedEmail) return null;
+
+  try {
+    const rows = (await getGoogleSheetData("applications")) as Record<string, unknown>[];
+    let events: Record<string, unknown>[] = [];
+    try {
+      events = (await getGoogleSheetData("applications_events")) as Record<string, unknown>[];
+    } catch {
+      events = [];
+    }
+    const match = rows
+      .map((row) => {
+        const rowEmail = getField(row, ["Email", "Email Address"]).toLowerCase();
+        const submittedAt =
+          getField(row, ["SubmittedAt", "Submitted At", "Timestamp"]) ||
+          new Date(0).toISOString();
+
+        return {
+          email: rowEmail,
+          applicationRef: getField(row, ["ApplicationRef", "Reference", "Application Reference"]),
+          status: getField(row, ["Status", "WorkflowStatus", "ApplicationStatus"]) || "Submitted",
+          submittedAt,
+          lastStatusUpdateAt:
+            getField(row, ["LastStatusUpdateAt", "Last Status Update At", "UpdatedAt"]) ||
+            submittedAt,
+        };
+      })
+      .filter((row) => row.email === normalizedEmail)
+      .sort(
+        (a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+      )[0];
+
+    if (!match) return null;
+
+    const latestEvent = events
+      .map((row) => ({
+        applicationRef: getField(row, ["ApplicationRef", "Reference", "Application Reference"]),
+        status: getField(row, ["Status", "WorkflowStatus", "ApplicationStatus"]),
+        updatedAt: getField(row, ["UpdatedAt", "Timestamp", "SubmittedAt"]),
+      }))
+      .filter(
+        (event) => event.applicationRef.toLowerCase() === match.applicationRef.toLowerCase()
+      )
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())[0];
+
+    return {
+      applicationRef: match.applicationRef,
+      status: latestEvent?.status || match.status,
+      submittedAt: match.submittedAt,
+      lastStatusUpdateAt: latestEvent?.updatedAt || match.lastStatusUpdateAt,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export default async function StudentDashboard() {
   const session = await getSession();
 
@@ -112,6 +177,8 @@ export default async function StudentDashboard() {
   const phone = getField(studentData, ["Phone", "Phone Number", "Contact"]);
   const semester =
     getField(studentData, ["Semester", "Current Semester", "Level"]) || "N/A";
+
+  const latestAdmission = await getLatestAdmissionByEmail(email);
 
   const gpa = getFieldNumber(studentData, ["GPA", "Current GPA", "CGPA"]);
   const attendance = getFieldNumber(studentData, [
@@ -193,8 +260,25 @@ export default async function StudentDashboard() {
                 value={attendance !== null ? `${attendanceRate.toFixed(0)}%` : "N/A"}
               />
               <StatCard label="Credits Completed" value={String(creditsCompleted)} />
-              <StatCard label="Credits Required" value={String(creditsTotal)} />
+              <StatCard
+                label="Admission Status"
+                value={latestAdmission?.status || "Not Found"}
+              />
             </div>
+
+            {latestAdmission ? (
+              <div className="mb-7 rounded-xl border border-blue-500/20 bg-blue-500/10 p-4">
+                <p className="text-sm font-semibold text-blue-200">
+                  Application {latestAdmission.applicationRef || "Reference unavailable"}
+                </p>
+                <p className="text-sm text-slate-200 mt-1">
+                  Workflow status: {latestAdmission.status}
+                </p>
+                <p className="text-xs text-slate-400 mt-1">
+                  Last update: {latestAdmission.lastStatusUpdateAt || latestAdmission.submittedAt}
+                </p>
+              </div>
+            ) : null}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-7">
               <div className="rounded-xl border border-slate-700 bg-slate-900/80 p-5 lg:col-span-2">

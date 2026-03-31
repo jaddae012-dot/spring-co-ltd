@@ -7,6 +7,7 @@ export interface SheetBlogPost {
   excerpt: string;
   content: string[];
   category: string;
+  tags: string[];
   author: string;
   date: string;
   readTime: string;
@@ -121,6 +122,10 @@ export async function getSheetBlogPosts(sheetId: string): Promise<SheetBlogPost[
           : [];
 
         const category = get("category") || "Company News";
+        const tags = (get("tags") || get("tag") || "")
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean);
         const author = get("author") || get("author name") || "SPRING.CO.LTD Team";
         const image = get("image") || get("image url") || "📰";
         const excerpt = get("excerpt") || get("summary") || get("\n\nsummary") || (contentRaw.length > 0 ? contentRaw.slice(0, 150) + "..." : "");
@@ -151,6 +156,7 @@ export async function getSheetBlogPosts(sheetId: string): Promise<SheetBlogPost[
           excerpt,
           content,
           category,
+          tags,
           author,
           date,
           readTime: estimateReadTime(contentRaw),

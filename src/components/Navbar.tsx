@@ -2,10 +2,35 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      document.body.style.overflow = "";
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isOpen]);
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -39,48 +64,68 @@ export default function Navbar() {
               </Link>
             ))}
             <Link
+              href="/prime-college/admissions"
+              className="ml-4 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg shadow-blue-500/20"
+            >
+              Apply to Prime College
+            </Link>
+            <Link
               href="/office"
-              className="ml-4 px-5 py-2.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-lg shadow-green-500/20"
+              className="ml-2 px-5 py-2.5 rounded-xl border border-emerald-400/40 text-emerald-200 text-sm font-semibold hover:bg-emerald-500/10 transition-all duration-200"
             >
               Digital Office
             </Link>
+            <div className="ml-2">
+              <ThemeToggle />
+            </div>
           </div>
 
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
-            aria-label="Toggle menu"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <div className="md:hidden flex items-center gap-2">
+            <ThemeToggle compact />
+
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="p-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
+              aria-label="Toggle menu"
             >
-              {isOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              )}
-            </svg>
-          </button>
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                {isOpen ? (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                ) : (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Mobile Nav */}
         {isOpen && (
-          <div className="md:hidden pb-4 border-t border-white/10">
+          <div className="md:hidden pb-4 border-t border-white/10 animate-in fade-in duration-200">
             <div className="flex flex-col space-y-1 pt-4">
+              <Link
+                href="/prime-college/admissions"
+                onClick={() => setIsOpen(false)}
+                className="mx-4 mb-1 px-5 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold text-center hover:from-blue-600 hover:to-indigo-700 transition-all"
+              >
+                Apply to Prime College
+              </Link>
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -94,10 +139,13 @@ export default function Navbar() {
               <Link
                 href="/office"
                 onClick={() => setIsOpen(false)}
-                className="mx-4 mt-2 px-5 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-semibold text-center hover:from-green-600 hover:to-emerald-700 transition-all"
+                className="mx-4 mt-2 px-5 py-3 rounded-xl border border-emerald-400/40 text-emerald-200 text-sm font-semibold text-center hover:bg-emerald-500/10 transition-all"
               >
                 Digital Office
               </Link>
+              <div className="px-4 pt-2">
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         )}

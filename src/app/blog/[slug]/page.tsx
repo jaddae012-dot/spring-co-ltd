@@ -67,10 +67,19 @@ export default async function BlogPostPage({ params }: Props) {
 
   if (!post) notFound();
 
-  // Find related posts (same category, exclude current)
+  // Find related posts by category and tag overlap (exclude current).
   const allPosts = await getAllBlogPosts();
   const relatedPosts = allPosts
-    .filter((p) => p.category === post.category && p.slug !== post.slug)
+    .filter((p) => p.slug !== post.slug)
+    .map((candidate) => {
+      const sharedTags = candidate.tags.filter((tag) => post.tags.includes(tag)).length;
+      const categoryScore = candidate.category === post.category ? 2 : 0;
+      const score = sharedTags * 3 + categoryScore;
+      return { candidate, score };
+    })
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map((item) => item.candidate)
     .slice(0, 3);
 
   return (
@@ -94,6 +103,15 @@ export default async function BlogPostPage({ params }: Props) {
               </span>
               <span className="text-gray-500 text-sm">{post.readTime}</span>
             </div>
+            {post.tags.length > 0 ? (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {post.tags.map((tag) => (
+                  <span key={tag} className="px-2 py-1 rounded-md bg-white/10 text-xs text-gray-200">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            ) : null}
             <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
               {post.title}
             </h1>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getGoogleSheetData } from "@/lib/sheets";
 import { getSession } from "@/lib/session";
+import AdmissionsWorkflowAdmin from "@/components/dashboard/AdmissionsWorkflowAdmin";
 
 type Row = Record<string, unknown>;
 
@@ -81,6 +82,8 @@ export default async function AdminTestPage() {
         <div className="mb-6 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-amber-200">
           This page intentionally hides PIN values and private credentials. It only verifies that rows are being read from Google Sheets.
         </div>
+
+        <AdmissionsWorkflowAdmin />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div className="rounded-lg border border-slate-700 bg-slate-900 p-5">

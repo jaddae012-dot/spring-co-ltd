@@ -12,21 +12,35 @@ function isImageUrl(str: string): boolean {
 interface BlogPageClientProps {
   posts: UnifiedBlogPost[];
   categories: string[];
+  tags: string[];
 }
 
-export default function BlogPageClient({ posts, categories }: BlogPageClientProps) {
+export default function BlogPageClient({ posts, categories, tags }: BlogPageClientProps) {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [activeTag, setActiveTag] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredPosts =
-    activeCategory === "All"
-      ? posts
-      : posts.filter((post) => post.category === activeCategory);
+  const query = searchQuery.trim().toLowerCase();
+
+  const filteredPosts = posts.filter((post) => {
+    const categoryMatch = activeCategory === "All" || post.category === activeCategory;
+    const tagMatch = activeTag === "All" || post.tags.includes(activeTag);
+    const contentBlob = post.content.join(" ").toLowerCase();
+    const searchMatch =
+      !query ||
+      post.title.toLowerCase().includes(query) ||
+      post.excerpt.toLowerCase().includes(query) ||
+      post.category.toLowerCase().includes(query) ||
+      post.tags.some((tag) => tag.toLowerCase().includes(query)) ||
+      contentBlob.includes(query);
+
+    return categoryMatch && tagMatch && searchMatch;
+  });
 
   const featuredPost = posts.find((post) => post.featured);
 
   return (
     <div className="pt-24">
-      {/* Hero */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mb-12">
@@ -39,7 +53,6 @@ export default function BlogPageClient({ posts, categories }: BlogPageClientProp
             </p>
           </div>
 
-          {/* Featured Post */}
           {featuredPost && (
             <Link href={`/blog/${featuredPost.slug}`} className="block mb-16">
               <div className="glass rounded-2xl p-8 md:p-12 hover:bg-white/10 transition-colors duration-200 relative overflow-hidden group">
@@ -66,6 +79,15 @@ export default function BlogPageClient({ posts, categories }: BlogPageClientProp
                       {featuredPost.title}
                     </h2>
                     <p className="text-gray-400 leading-relaxed mb-4">{featuredPost.excerpt}</p>
+                    {featuredPost.tags.length > 0 ? (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {featuredPost.tags.slice(0, 3).map((tag) => (
+                          <span key={tag} className="px-2 py-1 rounded-md bg-white/10 text-xs text-gray-200">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
                     <span className="text-green-400 font-semibold text-sm">
                       Read Article →
                     </span>
@@ -75,8 +97,19 @@ export default function BlogPageClient({ posts, categories }: BlogPageClientProp
             </Link>
           )}
 
-          {/* Category Filter */}
-          <div className="flex flex-wrap gap-2 mb-10">
+          <div className="mb-8">
+            <label htmlFor="blog-search" className="sr-only">Search posts</label>
+            <input
+              id="blog-search"
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search by title, category, tag, or keyword"
+              className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500"
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-2 mb-6">
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -92,7 +125,22 @@ export default function BlogPageClient({ posts, categories }: BlogPageClientProp
             ))}
           </div>
 
-          {/* Blog Grid */}
+          <div className="flex flex-wrap gap-2 mb-10">
+            {tags.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => setActiveTag(tag)}
+                className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wide transition-colors duration-200 ${
+                  activeTag === tag
+                    ? "bg-white text-black"
+                    : "glass text-gray-300 hover:text-white hover:bg-white/10"
+                }`}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredPosts.map((post) => (
               <Link key={post.slug} href={`/blog/${post.slug}`}>
@@ -119,6 +167,15 @@ export default function BlogPageClient({ posts, categories }: BlogPageClientProp
                     <p className="text-gray-400 text-sm leading-relaxed flex-1">
                       {post.excerpt}
                     </p>
+                    {post.tags.length > 0 ? (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {post.tags.slice(0, 3).map((tag) => (
+                          <span key={tag} className="px-2 py-1 rounded-md bg-white/5 text-[11px] text-gray-300">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
                     <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5">
                       <span className="text-gray-500 text-xs">{post.date}</span>
                       <span className="text-gray-500 text-xs">{post.author}</span>
@@ -131,7 +188,7 @@ export default function BlogPageClient({ posts, categories }: BlogPageClientProp
 
           {filteredPosts.length === 0 && (
             <div className="text-center py-20">
-              <p className="text-gray-500 text-lg">No posts found in this category.</p>
+              <p className="text-gray-500 text-lg">No posts found for this filter and search combination.</p>
             </div>
           )}
         </div>
