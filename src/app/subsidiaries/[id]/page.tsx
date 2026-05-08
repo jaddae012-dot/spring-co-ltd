@@ -8,6 +8,26 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
+function getGlowClass(id: string): string {
+  if (id === "agritech") return "bg-green-500/15";
+  if (id === "sparrow-studio-gh") return "bg-purple-500/15";
+  if (id === "fastrider") return "bg-red-700/15";
+  if (id === "prime-college") return "bg-blue-500/15";
+  if (id === "fast-cleaners") return "bg-cyan-500/15";
+  if (id === "spring-cooperative-union") return "bg-yellow-500/15";
+  return "bg-white/15";
+}
+
+function getDotClass(id: string): string {
+  if (id === "agritech") return "bg-green-500";
+  if (id === "sparrow-studio-gh") return "bg-purple-500";
+  if (id === "fastrider") return "bg-red-700";
+  if (id === "prime-college") return "bg-blue-500";
+  if (id === "fast-cleaners") return "bg-cyan-500";
+  if (id === "spring-cooperative-union") return "bg-yellow-500";
+  return "bg-white";
+}
+
 export async function generateStaticParams() {
   return subsidiaries.map((sub) => ({ id: sub.id }));
 }
@@ -30,14 +50,16 @@ export default async function SubsidiaryPage({ params }: Props) {
     notFound();
   }
 
+  const glowClass = getGlowClass(subsidiary.id);
+  const dotClass = getDotClass(subsidiary.id);
+
   return (
     <div className="pt-20">
       {/* Hero */}
-      <section className="py-24 relative bg-grid">
+      <section className="py-24 relative bg-grid overflow-hidden">
         <div className="absolute inset-0">
           <div
-            className="absolute top-1/3 left-1/4 w-96 h-96 rounded-full blur-3xl"
-            style={{ backgroundColor: `${subsidiary.color}15` }}
+            className={`absolute top-1/3 left-1/4 w-96 h-96 rounded-full blur-3xl ${glowClass}`}
           />
         </div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -61,14 +83,14 @@ export default async function SubsidiaryPage({ params }: Props) {
             Back to Subsidiaries
           </Link>
 
-          <div className="flex items-start gap-6 mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-start gap-6 mb-8">
             <div
               className={`w-24 h-24 rounded-2xl ${subsidiary.logo ? 'bg-white' : `bg-gradient-to-br ${subsidiary.gradient}`} flex items-center justify-center text-5xl shadow-2xl flex-shrink-0 overflow-hidden`}
             >
               {subsidiary.logo ? <Image src={subsidiary.logo} alt={subsidiary.name} width={96} height={96} className="w-full h-full object-contain p-2" /> : subsidiary.icon}
             </div>
-            <div>
-              <h1 className="text-4xl md:text-6xl font-bold text-white mb-3">
+            <div className="min-w-0">
+              <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-3 break-words">
                 {subsidiary.name}
               </h1>
               <p className="text-lg text-gray-400">
@@ -104,8 +126,7 @@ export default async function SubsidiaryPage({ params }: Props) {
                     className="flex items-center space-x-3 p-3 rounded-xl hover:bg-white/5 transition-colors"
                   >
                     <div
-                      className="w-2 h-2 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: subsidiary.color }}
+                      className={`w-2 h-2 rounded-full flex-shrink-0 ${dotClass}`}
                     />
                     <span className="text-gray-300 text-sm">{service}</span>
                   </div>

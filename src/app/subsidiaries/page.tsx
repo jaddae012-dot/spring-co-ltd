@@ -13,7 +13,7 @@ export default function SubsidiariesPage() {
   return (
     <div className="pt-20">
       {/* Hero */}
-      <section className="py-24 relative bg-grid">
+      <section className="py-24 relative bg-grid overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-1/3 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
           <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-green-500/10 rounded-full blur-3xl" />

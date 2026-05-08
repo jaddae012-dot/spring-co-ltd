@@ -195,10 +195,10 @@ export default async function TutorDashboard() {
                 </div>
                 <div className="flex items-center gap-3">
                   <Link
-                    href="/prime-college/admin/test"
+                    href="/prime-college/admin/dashboard"
                     className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-md"
                   >
-                    Admin Test
+                    Admin Portal
                   </Link>
                   <Link
                     href="/api/auth/logout"
@@ -269,10 +269,10 @@ export default async function TutorDashboard() {
                 <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
                 <div className="grid gap-3">
                   <Link
-                    href="/prime-college/admin/test"
+                    href="/prime-college/admin/dashboard"
                     className="rounded-md bg-slate-800 hover:bg-slate-700 p-3 font-semibold"
                   >
-                    Verify Sheet Records
+                    Manage Student Portal
                   </Link>
                   <Link
                     href="/prime-college/contact"

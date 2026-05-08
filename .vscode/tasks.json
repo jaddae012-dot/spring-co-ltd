@@ -14,7 +14,7 @@
 		{
 			"label": "git-commit-and-push",
 			"type": "shell",
-			"command": "git add .; git commit -m \"feat: prime college auth, dashboards, resources, and login speed improvements\"; git push",
+			"command": "git add .; git commit -m 'feat: prime college auth, dashboards, resources, and login speed improvements'; git push",
 			"isBackground": false
 		}
 	]

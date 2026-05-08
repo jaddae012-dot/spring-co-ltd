@@ -36,6 +36,7 @@ function getBrandTextClass(color: string): string {
 
 export default function SubsidiaryNavbar({
   name,
+  shortName,
   logo,
   logoSize = "md",
   icon,
@@ -93,7 +94,7 @@ export default function SubsidiaryNavbar({
         {/* Main navbar */}
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href={links[0]?.href || "/"} className="flex items-center space-x-3 group">
+          <Link href={links[0]?.href || "/"} className="flex items-center space-x-3 group min-w-0">
             {logo ? (
               <div className={`${logoSizeClass} rounded-xl flex items-center justify-center overflow-hidden`}>
                 <Image src={logo} alt={name} width={logoPixelSize} height={logoPixelSize} className="w-full h-full object-contain" />
@@ -105,8 +106,11 @@ export default function SubsidiaryNavbar({
                 {icon}
               </div>
             )}
-            <span className={`text-lg font-bold tracking-tight ${brandTextClass}`}>
+            <span className={`hidden sm:block text-lg font-bold tracking-tight truncate ${brandTextClass}`}>
               {name}
+            </span>
+            <span className={`block sm:hidden text-base font-bold tracking-tight truncate max-w-[9.5rem] ${brandTextClass}`}>
+              {shortName}
             </span>
           </Link>
 

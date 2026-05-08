@@ -48,8 +48,12 @@ function previewRows(rows: Row[], kind: "student" | "tutor") {
 export default async function AdminTestPage() {
   const session = await getSession();
 
-  if (!session.isLoggedIn || session.userType !== "tutor") {
-    redirect("/prime-college/login");
+  if (!session.isLoggedIn) {
+    redirect("/prime-college/admin/login");
+  }
+
+  if (session.userType !== "tutor" && session.userType !== "admin") {
+    redirect("/prime-college/dashboard");
   }
 
   const students = (await getGoogleSheetData("students")) as Row[];

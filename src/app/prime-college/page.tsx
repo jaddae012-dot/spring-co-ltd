@@ -4,7 +4,7 @@ export default function PrimeCollegeHome() {
   return (
     <div className="pt-24">
       <section className="relative py-24 overflow-hidden">
-        <div className="absolute inset-0" aria-hidden="true" style={{ contain: "paint" }}>
+        <div className="absolute inset-0" aria-hidden="true">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-2xl" />
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-2xl" />
         </div>
@@ -21,6 +21,7 @@ export default function PrimeCollegeHome() {
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/prime-college/programs" className="px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold text-lg transition-colors duration-200 shadow-lg shadow-blue-500/25 text-center">Explore Programs</Link>
               <Link href="/prime-college/admissions" className="px-8 py-4 rounded-2xl glass text-white font-semibold text-lg hover:bg-white/10 transition-colors duration-200 text-center">Apply Now</Link>
+              <Link href="/prime-college/admin/login" className="px-8 py-4 rounded-2xl border border-cyan-400/40 text-cyan-100 font-semibold text-lg hover:bg-cyan-500/10 transition-colors duration-200 text-center">Admin Login</Link>
             </div>
           </div>
         </div>
@@ -52,7 +53,10 @@ export default function PrimeCollegeHome() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">Start Your <span className="text-blue-500">Journey</span></h2>
           <p className="text-gray-400 text-lg mb-10">Admissions are open. Take the first step toward your future.</p>
-          <Link href="/prime-college/admissions" className="inline-flex px-10 py-4 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold text-lg transition-colors duration-200 shadow-lg">Apply Now</Link>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link href="/prime-college/admissions" className="inline-flex px-10 py-4 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold text-lg transition-colors duration-200 shadow-lg justify-center">Apply Now</Link>
+            <Link href="/prime-college/admin/login" className="inline-flex px-10 py-4 rounded-2xl border border-cyan-400/40 text-cyan-100 font-semibold text-lg hover:bg-cyan-500/10 transition-colors duration-200 justify-center">Admin Login</Link>
+          </div>
         </div>
       </section>
     </div>

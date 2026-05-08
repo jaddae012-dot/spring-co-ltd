@@ -14,6 +14,8 @@ export default function LoginPage() {
   useEffect(() => {
     router.prefetch("/prime-college/dashboard");
     router.prefetch("/prime-college/tutor/dashboard");
+    router.prefetch("/prime-college/admin/dashboard");
+    router.prefetch("/prime-college/admin/login");
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,6 +37,8 @@ export default function LoginPage() {
           router.replace("/prime-college/dashboard");
         } else if (userType === "tutor") {
           router.replace("/prime-college/tutor/dashboard");
+        } else if (userType === "admin") {
+          router.replace("/prime-college/admin/dashboard");
         } else {
           setError("Invalid user type received.");
         }
@@ -110,6 +114,15 @@ export default function LoginPage() {
           </div>
         </form>
         <div className="text-center text-sm text-gray-400">
+          <p className="mb-2">
+            Admin staff?{" "}
+            <Link
+              href="/prime-college/admin/login"
+              className="font-medium text-cyan-400 hover:text-cyan-300"
+            >
+              Go directly to admin login
+            </Link>
+          </p>
           <p>
             Forgot your PIN?{" "}
             <Link
