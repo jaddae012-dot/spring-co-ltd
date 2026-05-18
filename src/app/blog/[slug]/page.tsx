@@ -6,7 +6,19 @@ import ShareButtons from "@/components/ShareButtons";
 import type { Metadata } from "next";
 
 function isImageUrl(str: string): boolean {
-  return str.startsWith("http://") || str.startsWith("https://");
+  const value = str.trim();
+  return (
+    value.startsWith("http://") ||
+    value.startsWith("https://") ||
+    value.startsWith("/") ||
+    value.startsWith("data:image/")
+  );
+}
+
+function normalizeImageSrc(src: string): string {
+  const value = src.trim();
+  if (!value.startsWith("/")) return value;
+  return value.replace(/\s/g, "%20");
 }
 
 // Allow dynamic slugs from Google Forms posts
@@ -23,9 +35,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) return { title: "Post Not Found" };
 
   const url = `https://spring-co-ltd.vercel.app/blog/${slug}`;
-  const hasImage = post.image.startsWith("http://") || post.image.startsWith("https://");
   const fallbackImage = "https://spring-co-ltd.vercel.app/logos/SPRING.CO.LTD.png";
-  const imageUrl = hasImage ? post.image : fallbackImage;
+  const rawImage = post.image?.trim() || "";
+  const imageUrl = rawImage
+    ? rawImage.startsWith("http://") || rawImage.startsWith("https://")
+      ? rawImage
+      : rawImage.startsWith("/")
+        ? `https://spring-co-ltd.vercel.app${rawImage}`
+        : fallbackImage
+    : fallbackImage;
+  const hasImage = imageUrl !== fallbackImage;
 
   return {
     title: `${post.title} — SPRING.CO.LTD Blog`,
@@ -130,7 +149,7 @@ export default async function BlogPostPage({ params }: Props) {
           {/* Featured Image */}
           {isImageUrl(post.image) ? (
             <div className="relative rounded-2xl overflow-hidden h-64 md:h-96 mb-12">
-              <Image src={post.image} alt={post.title} fill className="object-cover" />
+              <Image src={normalizeImageSrc(post.image)} alt={post.title} fill className="object-cover" />
             </div>
           ) : (
             <div className="glass rounded-2xl h-64 md:h-80 flex items-center justify-center text-8xl mb-12">
@@ -178,7 +197,7 @@ export default async function BlogPostPage({ params }: Props) {
                     <div className="glass rounded-2xl p-6 hover:bg-white/10 transition-colors duration-200 group">
                       {isImageUrl(related.image) ? (
                         <div className="relative w-full h-24 rounded-lg overflow-hidden mb-4">
-                          <Image src={related.image} alt={related.title} fill className="object-cover" />
+                          <Image src={normalizeImageSrc(related.image)} alt={related.title} fill className="object-cover" />
                         </div>
                       ) : (
                         <div className="text-4xl mb-4">{related.image}</div>

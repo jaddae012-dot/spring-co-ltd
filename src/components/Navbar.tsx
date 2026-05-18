@@ -75,12 +75,6 @@ export default function Navbar() {
             >
               Digital Office
             </Link>
-            <Link
-              href="/prime-college/admin/login"
-              className="ml-2 px-5 py-2.5 rounded-xl border border-cyan-400/40 text-cyan-200 text-sm font-semibold hover:bg-cyan-500/10 transition-all duration-200"
-            >
-              Prime Admin Login
-            </Link>
             <div className="ml-2">
               <ThemeToggle />
             </div>
@@ -148,13 +142,6 @@ export default function Navbar() {
                 className="mx-4 mt-2 px-5 py-3 rounded-xl border border-emerald-400/40 text-emerald-200 text-sm font-semibold text-center hover:bg-emerald-500/10 transition-all"
               >
                 Digital Office
-              </Link>
-              <Link
-                href="/prime-college/admin/login"
-                onClick={() => setIsOpen(false)}
-                className="mx-4 mt-2 px-5 py-3 rounded-xl border border-cyan-400/40 text-cyan-200 text-sm font-semibold text-center hover:bg-cyan-500/10 transition-all"
-              >
-                Prime Admin Login
               </Link>
               <div className="px-4 pt-2">
                 <ThemeToggle />

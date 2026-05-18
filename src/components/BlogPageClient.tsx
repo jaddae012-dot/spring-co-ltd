@@ -2,11 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { UnifiedBlogPost } from "@/lib/blog";
 
 function isImageUrl(str: string): boolean {
-  return str.startsWith("http://") || str.startsWith("https://");
+  const value = str.trim();
+  return (
+    value.startsWith("http://") ||
+    value.startsWith("https://") ||
+    value.startsWith("/") ||
+    value.startsWith("data:image/")
+  );
 }
 
 interface BlogPageClientProps {
@@ -22,22 +28,41 @@ export default function BlogPageClient({ posts, categories, tags }: BlogPageClie
 
   const query = searchQuery.trim().toLowerCase();
 
-  const filteredPosts = posts.filter((post) => {
-    const categoryMatch = activeCategory === "All" || post.category === activeCategory;
-    const tagMatch = activeTag === "All" || post.tags.includes(activeTag);
-    const contentBlob = post.content.join(" ").toLowerCase();
-    const searchMatch =
-      !query ||
-      post.title.toLowerCase().includes(query) ||
-      post.excerpt.toLowerCase().includes(query) ||
-      post.category.toLowerCase().includes(query) ||
-      post.tags.some((tag) => tag.toLowerCase().includes(query)) ||
-      contentBlob.includes(query);
+  const hasTagFilters = useMemo(() => {
+    return tags.some((tag) => tag !== "All");
+  }, [tags]);
 
-    return categoryMatch && tagMatch && searchMatch;
-  });
+  const isDefaultView = activeCategory === "All" && activeTag === "All" && !query;
 
-  const featuredPost = posts.find((post) => post.featured);
+  const featuredPost = useMemo(() => {
+    if (!isDefaultView) return undefined;
+    return posts.find((post) => post.featured);
+  }, [isDefaultView, posts]);
+
+  const normalizeImageSrc = (src: string) => {
+    const value = src.trim();
+    if (!value.startsWith("/")) return value;
+    return value.replace(/\s/g, "%20");
+  };
+
+  const filteredPosts = useMemo(() => {
+    return posts.filter((post) => {
+      const categoryMatch = activeCategory === "All" || post.category === activeCategory;
+      const tagMatch = activeTag === "All" || post.tags.includes(activeTag);
+      const contentBlob = post.content.join(" ").toLowerCase();
+      const searchMatch =
+        !query ||
+        post.title.toLowerCase().includes(query) ||
+        post.excerpt.toLowerCase().includes(query) ||
+        post.category.toLowerCase().includes(query) ||
+        post.tags.some((tag) => tag.toLowerCase().includes(query)) ||
+        contentBlob.includes(query);
+
+      if (!(categoryMatch && tagMatch && searchMatch)) return false;
+      if (featuredPost && post.slug === featuredPost.slug) return false;
+      return true;
+    });
+  }, [activeCategory, activeTag, featuredPost, posts, query]);
 
   return (
     <div className="pt-24">
@@ -62,7 +87,7 @@ export default function BlogPageClient({ posts, categories, tags }: BlogPageClie
                 <div className="flex flex-col md:flex-row gap-8 items-center">
                   {isImageUrl(featuredPost.image) ? (
                     <div className="w-40 h-40 md:w-48 md:h-48 relative rounded-xl overflow-hidden flex-shrink-0">
-                      <Image src={featuredPost.image} alt={featuredPost.title} fill className="object-cover" />
+                      <Image src={normalizeImageSrc(featuredPost.image)} alt={featuredPost.title} fill className="object-cover" />
                     </div>
                   ) : (
                     <div className="text-7xl md:text-8xl">{featuredPost.image}</div>
@@ -125,21 +150,23 @@ export default function BlogPageClient({ posts, categories, tags }: BlogPageClie
             ))}
           </div>
 
-          <div className="flex flex-wrap gap-2 mb-10">
-            {tags.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => setActiveTag(tag)}
-                className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wide transition-colors duration-200 ${
-                  activeTag === tag
-                    ? "bg-white text-black"
-                    : "glass text-gray-300 hover:text-white hover:bg-white/10"
-                }`}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
+          {hasTagFilters && (
+            <div className="flex flex-wrap gap-2 mb-10">
+              {tags.map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => setActiveTag(tag)}
+                  className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wide transition-colors duration-200 ${
+                    activeTag === tag
+                      ? "bg-white text-black"
+                      : "glass text-gray-300 hover:text-white hover:bg-white/10"
+                  }`}
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredPosts.map((post) => (
@@ -147,7 +174,7 @@ export default function BlogPageClient({ posts, categories, tags }: BlogPageClie
                 <article className="glass rounded-2xl overflow-hidden hover:bg-white/10 transition-colors duration-200 group h-full flex flex-col">
                   {isImageUrl(post.image) ? (
                     <div className="h-48 relative">
-                      <Image src={post.image} alt={post.title} fill className="object-cover" />
+                      <Image src={normalizeImageSrc(post.image)} alt={post.title} fill className="object-cover" />
                     </div>
                   ) : (
                     <div className="h-48 flex items-center justify-center bg-gradient-to-br from-white/5 to-white/0 text-6xl">
@@ -186,7 +213,7 @@ export default function BlogPageClient({ posts, categories, tags }: BlogPageClie
             ))}
           </div>
 
-          {filteredPosts.length === 0 && (
+          {filteredPosts.length === 0 && !featuredPost && (
             <div className="text-center py-20">
               <p className="text-gray-500 text-lg">No posts found for this filter and search combination.</p>
             </div>

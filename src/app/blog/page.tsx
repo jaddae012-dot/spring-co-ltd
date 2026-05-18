@@ -1,4 +1,4 @@
-import { getAllBlogPosts, getBlogCategories, getBlogTags } from "@/lib/blog";
+import { getAllBlogPosts } from "@/lib/blog";
 import BlogPageClient from "@/components/BlogPageClient";
 import type { Metadata } from "next";
 
@@ -26,11 +26,19 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function BlogPage() {
-  const [posts, categories, tags] = await Promise.all([
-    getAllBlogPosts(),
-    getBlogCategories(),
-    getBlogTags(),
-  ]);
+  const posts = await getAllBlogPosts();
+
+  const categories = [
+    "All",
+    ...Array.from(new Set(posts.map((p) => p.category).filter(Boolean))),
+  ];
+
+  const tags = [
+    "All",
+    ...Array.from(
+      new Set(posts.flatMap((p) => p.tags).map((t) => t.trim()).filter(Boolean))
+    ),
+  ];
 
   return <BlogPageClient posts={posts} categories={categories} tags={tags} />;
 }

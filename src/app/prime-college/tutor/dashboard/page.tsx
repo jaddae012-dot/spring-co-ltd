@@ -323,7 +323,7 @@ export default async function TutorDashboard() {
               </SectionCard>
 
               <section className="rounded-xl border border-slate-700 bg-slate-900/80 p-5">
-                <h3 className="text-lg font-bold mb-4">Today's Classes</h3>
+                <h3 className="text-lg font-bold mb-4">Today&apos;s Classes</h3>
                 <div className="space-y-3">
                   {todayClasses.length > 0 ? (
                     todayClasses.map((item, idx) => (

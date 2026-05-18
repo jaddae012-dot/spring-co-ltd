@@ -20,7 +20,12 @@ export interface UnifiedBlogPost {
 
 const BLOG_DIR = path.join(process.cwd(), "content", "blog");
 const SHEET_ID =
-  process.env.GOOGLE_SHEET_ID || process.env.GOOGLE_SPREADSHEETS_ID || "";
+  process.env.BLOG_GOOGLE_SHEET_ID ||
+  process.env.GOOGLE_SHEET_ID ||
+  process.env.GOOGLE_SPREADSHEETS_ID ||
+  "";
+
+const SHEET_NAME = process.env.BLOG_GOOGLE_SHEET_NAME || "Sheet1";
 
 // Read all markdown files from content/blog/
 function getMarkdownFiles(): string[] {
@@ -65,7 +70,7 @@ function parsePost(filePath: string): UnifiedBlogPost | null {
 // Get all blog posts: Google Forms (via Sheet) + Markdown files, newest first
 export async function getAllBlogPosts(): Promise<UnifiedBlogPost[]> {
   // 1. Get posts from Google Sheets (submitted via Google Forms)
-  const sheetPosts = await getSheetBlogPosts(SHEET_ID);
+  const sheetPosts = await getSheetBlogPosts(SHEET_ID, { sheetName: SHEET_NAME });
   const formPosts: UnifiedBlogPost[] = sheetPosts.map((p) => ({
     id: p.slug,
     slug: p.slug,

@@ -149,6 +149,24 @@ export default async function AdminDashboardPage() {
             </div>
           </SectionCard>
         </div>
+
+        {session.userType === "admin" ? (
+          <div className="mt-6">
+            <SectionCard title="Corporate Tools">
+              <div className="flex flex-col gap-3">
+                <p className="text-sm text-slate-400">
+                  Publish updates to the corporate blog.
+                </p>
+                <Link
+                  href="/admin/blog"
+                  className="inline-flex w-fit items-center justify-center rounded-md bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+                >
+                  Publish Blog Post
+                </Link>
+              </div>
+            </SectionCard>
+          </div>
+        ) : null}
       </div>
     </div>
   );

@@ -2,14 +2,43 @@ import Link from "next/link";
 import Image from "next/image";
 import { subsidiaries } from "@/data/subsidiaries";
 import { companyInfo } from "@/data/company";
+import { WhatWeDoCarousel } from "@/components/WhatWeDoCarousel";
+import { getCarouselPhotosFromSheet, CarouselPhoto } from "@/lib/sheets";
 
-export default function Home() {
+type PhotoStripItem = CarouselPhoto;
+
+export default async function Home() {
+  // Fetch carousel photos from Google Sheet
+  const carouselSheetId = process.env.CAROUSEL_GOOGLE_SHEET_ID || process.env.BLOG_GOOGLE_SHEET_ID || "";
+  const photoItems = carouselSheetId
+    ? await getCarouselPhotosFromSheet(carouselSheetId, { sheetName: "Carousel" })
+    : [];
+
+  const fallbackItems: PhotoStripItem[] = [
+    {
+      src: "/brand/what-we-do/education.svg",
+      alt: "Education & Training",
+      caption: "Education & Training",
+    },
+    {
+      src: "/brand/what-we-do/logistics.svg",
+      alt: "Logistics & Delivery",
+      caption: "Logistics & Delivery",
+    },
+    {
+      src: "/brand/what-we-do/cleaning.svg",
+      alt: "Professional Cleaning",
+      caption: "Professional Cleaning",
+    },
+  ];
+
+  const carouselItems = photoItems.length > 0 ? photoItems : fallbackItems;
   return (
     <>
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-grid">
         {/* Background decorations - using will-change for GPU acceleration */}
-        <div className="absolute inset-0" aria-hidden="true" style={{ willChange: 'transform', contain: 'paint' }}>
+        <div className="absolute inset-0" aria-hidden="true">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-green-500/10 rounded-full blur-2xl" />
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-2xl" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-2xl" />
@@ -74,6 +103,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* What We Do (Auto-transitioning Photos) */}
+      <WhatWeDoCarousel items={carouselItems} />
 
       {/* Subsidiaries Grid */}
       <section className="py-24 relative">

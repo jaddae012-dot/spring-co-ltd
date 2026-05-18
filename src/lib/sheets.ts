@@ -16,8 +16,8 @@ export interface SheetBlogPost {
 }
 
 // Google Sheets public CSV URL
-function getSheetCsvUrl(sheetId: string): string {
-  return `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=Sheet1`;
+function getSheetCsvUrl(sheetId: string, sheetName: string): string {
+  return `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
 }
 
 // Create a URL-friendly slug from a title
@@ -39,13 +39,23 @@ function estimateReadTime(text: string): string {
 }
 
 // Fetch and parse blog posts from Google Sheets
-export async function getSheetBlogPosts(sheetId: string): Promise<SheetBlogPost[]> {
+export async function getSheetBlogPosts(
+  sheetId: string,
+  options?: { sheetName?: string }
+): Promise<SheetBlogPost[]> {
   if (!sheetId) return [];
+  const sheetName = options?.sheetName || "Sheet1";
 
   try {
-    const res = await fetch(getSheetCsvUrl(sheetId), {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+
+    const res = await fetch(getSheetCsvUrl(sheetId, sheetName), {
       cache: "no-store", // Always fetch fresh data
+      signal: controller.signal,
     });
+
+    clearTimeout(timeout);
 
     if (!res.ok) {
       console.error("Google Sheets fetch failed:", res.status, res.statusText);
@@ -166,7 +176,112 @@ export async function getSheetBlogPosts(sheetId: string): Promise<SheetBlogPost[
       })
       .filter((p: SheetBlogPost | null): p is SheetBlogPost => p !== null);
   } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      console.error("Google Sheets fetch timed out");
+      return [];
+    }
     console.error("Failed to fetch from Google Sheets:", error);
+    return [];
+  }
+}
+
+// Carousel photo type
+export interface CarouselPhoto {
+  src: string;
+  caption: string;
+  alt: string;
+}
+
+// Fetch carousel photos from Google Sheets
+export async function getCarouselPhotosFromSheet(
+  sheetId: string,
+  options?: { sheetName?: string }
+): Promise<CarouselPhoto[]> {
+  if (!sheetId) return [];
+  const sheetName = options?.sheetName || "Carousel";
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+
+    const res = await fetch(getSheetCsvUrl(sheetId, sheetName), {
+      cache: "no-store",
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+
+    if (!res.ok) {
+      console.error("Google Sheets fetch failed:", res.status, res.statusText);
+      return [];
+    }
+
+    const text = await res.text();
+    const match = text.match(/setResponse\(([\s\S]+)\)/);
+    if (!match || !match[1]) {
+      console.error("Could not parse Google Sheets response");
+      return [];
+    }
+
+    const data = JSON.parse(match[1]);
+    const rows = data?.table?.rows || [];
+    const cols = data?.table?.cols || [];
+
+    if (rows.length === 0) return [];
+
+    const hasLabels = cols.some(
+      (col: { label: string }) => col.label?.trim()?.length > 0
+    );
+
+    const colMap: Record<string, number> = {};
+
+    if (hasLabels) {
+      cols.forEach((col: { label: string }, index: number) => {
+        const label = col.label?.replace(/[\n\r\s]+/g, " ")?.trim()?.toLowerCase();
+        if (label) colMap[label] = index;
+      });
+    } else if (rows.length > 0) {
+      const headerRow = rows[0];
+      headerRow.c?.forEach(
+        (cell: { v: string | null } | null, index: number) => {
+          const label = cell?.v?.toString()?.toLowerCase()?.trim();
+          if (label) colMap[label] = index;
+        }
+      );
+      rows.splice(0, 1);
+    }
+
+    if (rows.length === 0) return [];
+
+    return rows
+      .map((row: { c: ({ v: string | number | boolean | null } | null)[] }) => {
+        const get = (key: string): string => {
+          let idx = colMap[key];
+          if (idx === undefined) {
+            const match = Object.keys(colMap).find((k) => k.includes(key) || key.includes(k));
+            if (match) idx = colMap[match];
+          }
+          if (idx === undefined) return "";
+          const cell = row.c?.[idx];
+          if (!cell || cell.v === null || cell.v === undefined) return "";
+          return cell.v.toString().trim();
+        };
+
+        const src = get("image") || get("image url") || get("photo url") || "";
+        const caption = get("caption") || get("title") || "";
+        const alt = get("alt") || caption || "Carousel photo";
+
+        if (!src || !caption) return null;
+
+        return { src, caption, alt };
+      })
+      .filter((p: CarouselPhoto | null): p is CarouselPhoto => p !== null);
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      console.error("Google Sheets fetch timed out");
+      return [];
+    }
+    console.error("Failed to fetch carousel photos from Google Sheets:", error);
     return [];
   }
 }
@@ -246,12 +361,21 @@ export async function getGoogleSheetData(sheetName: string) {
   }
 }
 
-export async function appendGoogleSheetRow(sheetName: string, row: string[]) {
+export async function appendGoogleSheetRow(
+  sheetName: string,
+  row: string[],
+  options?: { spreadsheetId?: string }
+) {
   try {
     const sheets = await getGoogleSheetsClient("write");
+    const spreadsheetId = options?.spreadsheetId || SPREADSHEET_ID;
+
+    if (!spreadsheetId) {
+      throw new Error("Missing spreadsheet ID.");
+    }
 
     await sheets.spreadsheets.values.append({
-      spreadsheetId: SPREADSHEET_ID,
+      spreadsheetId,
       range: `${sheetName}!A1`,
       valueInputOption: "USER_ENTERED",
       insertDataOption: "INSERT_ROWS",
