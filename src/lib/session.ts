@@ -11,9 +11,6 @@ export interface SessionData {
 }
 
 export async function getSession() {
-  const session = await getIronSession<SessionData>(
-    await cookies(),
-    sessionOptions
-  );
+  const session = await getIronSession<SessionData>(cookies(), sessionOptions);
   return session;
 }
