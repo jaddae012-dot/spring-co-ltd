@@ -4,7 +4,7 @@ export default function FastCleanersHome() {
   return (
     <div className="pt-24">
       <section className="relative py-24 overflow-hidden">
-        <div className="absolute inset-0" aria-hidden="true" style={{ contain: "paint" }}>
+        <div className="absolute inset-0 [contain:paint]" aria-hidden="true">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-2xl" />
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-2xl" />
         </div>

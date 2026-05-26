@@ -1,6 +1,25 @@
 import Link from "next/link";
 import { subsidiaries } from "@/data/subsidiaries";
 
+function getFooterHeadingClass(color?: string) {
+  switch (color) {
+    case "#22c55e":
+      return "text-green-400";
+    case "#a855f7":
+      return "text-purple-400";
+    case "#b91c1c":
+      return "text-red-400";
+    case "#3b82f6":
+      return "text-blue-400";
+    case "#06b6d4":
+      return "text-cyan-400";
+    case "#eab308":
+      return "text-yellow-400";
+    default:
+      return "text-white";
+  }
+}
+
 interface SubsidiaryFooterProps {
   subsidiary?: string;
   name?: string;
@@ -39,7 +58,7 @@ export default function SubsidiaryFooter({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
-            <h3 className="text-lg font-bold mb-3" style={color ? { color } : {}}>
+            <h3 className={`text-lg font-bold mb-3 ${getFooterHeadingClass(color)}`}>
               {name}
             </h3>
             <p className="text-gray-400 text-sm leading-relaxed">
