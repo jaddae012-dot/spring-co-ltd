@@ -1,117 +1,69 @@
-import type { Metadata } from "next";
-import FormWrapper from "@/components/FormWrapper";
+import Navbar from "@/components/Navbar";
+import SubsidiaryNavbar from "@/components/SubsidiaryNavbar";
+import SubsidiaryFooter from "@/components/SubsidiaryFooter";
+import CustomerBookingForm from "@/components/CustomerBookingForm";
 
-export const metadata: Metadata = { title: "Book a Cleaning" };
+export const metadata = {
+  title: "Book Cleaning Service | Fast Cleaners",
+  description: "Request professional cleaning services across Ghana. Fast Cleaners will match you with trained cleaners in your area.",
+};
 
-export default function BookCleaningPage() {
+export default function BookingPage() {
   return (
-    <div className="pt-24">
-      <section className="py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-12">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">Book a <span className="text-cyan-500">Cleaning</span></h1>
-            <p className="text-gray-400 text-lg">Fill out the form below and we&apos;ll confirm your booking within 30 minutes.</p>
+    <>
+      <SubsidiaryNavbar subsidiary="fast-cleaners" />
+      <main className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black pt-28 pb-20">
+        <div className="container mx-auto px-4 max-w-3xl">
+          {/* Header */}
+          <div className="mb-12 text-center">
+            <h1 className="text-4xl md:text-5xl font-black text-white mb-4">
+              Request a Cleaning Service
+            </h1>
+            <p className="text-lg text-gray-400">
+              Professional cleaning on demand. Fill out the form below and we'll connect
+              you with a trained cleaner in your area.
+            </p>
           </div>
 
-          <div className="glass rounded-2xl p-8">
-            <FormWrapper
-              subject="Fast Cleaners - Booking"
-              apiEndpoint="/api/fast-cleaners/bookings"
-              submitToWeb3Forms={true}
-              buttonText="Confirm Booking"
-              buttonClass="w-full py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-teal-600 text-white font-semibold text-lg transition-colors duration-200 shadow-lg"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Full Name *</label>
-                  <input type="text" name="full_name" required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500" />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Phone Number *</label>
-                  <input type="tel" name="phone" required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500" />
-                </div>
-              </div>
+          {/* Booking Form Card */}
+          <div className="bg-gradient-to-br from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-8 shadow-2xl mb-8">
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-white mb-2">Booking Details</h2>
+              <p className="text-gray-400">
+                Tell us about your cleaning needs. Our team will review your request and
+                contact you within 1-2 hours to confirm and discuss pricing.
+              </p>
+            </div>
 
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">Address / Location *</label>
-                <input type="text" name="address" required placeholder="e.g. East Legon, Accra" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500" />
-              </div>
+            <CustomerBookingForm />
+          </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Service Type *</label>
-                  <select name="service_type" required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500">
-                    <option value="">Select service</option>
-                    <option>Home Cleaning</option>
-                    <option>Office Cleaning</option>
-                    <option>Deep Cleaning</option>
-                    <option>Window Cleaning</option>
-                    <option>Upholstery Cleaning</option>
-                    <option>Post-Construction Cleanup</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Property Type</label>
-                  <select name="property_type" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500">
-                    <option value="">Select type</option>
-                    <option>Apartment / Flat</option>
-                    <option>House / Bungalow</option>
-                    <option>Office / Workspace</option>
-                    <option>Commercial Building</option>
-                    <option>Construction Site</option>
-                  </select>
-                </div>
-              </div>
+          {/* Info Boxes */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 bg-orange-500/10 border border-orange-500/30 rounded-lg">
+              <h3 className="text-orange-400 font-bold mb-2">🕐 Fast Response</h3>
+              <p className="text-sm text-gray-300">
+                We respond to bookings within 1-2 hours during business hours.
+              </p>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Preferred Date *</label>
-                  <input type="date" name="preferred_date" required className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500" />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Preferred Time</label>
-                  <select name="preferred_time" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500">
-                    <option>Morning (7AM - 12PM)</option>
-                    <option>Afternoon (12PM - 4PM)</option>
-                    <option>Evening (4PM - 7PM)</option>
-                  </select>
-                </div>
-              </div>
+            <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+              <h3 className="text-blue-400 font-bold mb-2">✓ Professional Staff</h3>
+              <p className="text-sm text-gray-300">
+                All our cleaners are trained and verified for quality service.
+              </p>
+            </div>
 
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">Frequency</label>
-                <select name="frequency" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500">
-                  <option>One-Time</option>
-                  <option>Weekly</option>
-                  <option>Bi-Weekly</option>
-                  <option>Monthly</option>
-                </select>
-              </div>
-
-              <div className="rounded-xl border border-white/10 p-5 space-y-4">
-                <h3 className="text-white font-semibold">Referral</h3>
-                <p className="text-xs text-gray-400">
-                  If someone referred you, enter their code so we can apply any eligible referral rewards.
-                </p>
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Referral Code</label>
-                  <input
-                    type="text"
-                    name="referral_code"
-                    placeholder="e.g. CLEAN2026"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">Special Instructions</label>
-                <textarea rows={4} name="special_instructions" placeholder="Any specific areas to focus on, access instructions, etc..." className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-cyan-500" />
-              </div>
-            </FormWrapper>
+            <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+              <h3 className="text-green-400 font-bold mb-2">📍 Available Nationwide</h3>
+              <p className="text-sm text-gray-300">
+                We operate across all regions of Ghana. Your cleaner is nearby.
+              </p>
+            </div>
           </div>
         </div>
-      </section>
-    </div>
+      </main>
+      <SubsidiaryFooter subsidiary="fast-cleaners" />
+    </>
   );
 }
