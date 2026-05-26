@@ -74,6 +74,55 @@ export default function FastCleanersHome() {
           <Link href="/fast-cleaners/book" className="inline-flex px-10 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-teal-600 text-white font-semibold text-lg transition-colors duration-200 shadow-lg">Book Now</Link>
         </div>
       </section>
+
+      {/* Quick Access Links */}
+      <section className="py-16 border-t border-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h3 className="text-center text-gray-400 text-sm font-semibold mb-8 uppercase tracking-wide">Quick Access</h3>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <Link
+              href="/fast-cleaners/apply"
+              className="p-6 rounded-xl border border-cyan-500/30 bg-cyan-500/5 hover:bg-cyan-500/10 transition-colors text-center group"
+            >
+              <div className="text-2xl mb-2">👤</div>
+              <h4 className="text-white font-semibold text-sm group-hover:text-cyan-400 transition-colors">Become a Cleaner</h4>
+              <p className="text-xs text-gray-500 mt-1">Join our team</p>
+            </Link>
+            <Link
+              href="/fast-cleaners/cleaner-dashboard"
+              className="p-6 rounded-xl border border-cyan-500/30 bg-cyan-500/5 hover:bg-cyan-500/10 transition-colors text-center group"
+            >
+              <div className="text-2xl mb-2">📊</div>
+              <h4 className="text-white font-semibold text-sm group-hover:text-cyan-400 transition-colors">Cleaner Portal</h4>
+              <p className="text-xs text-gray-500 mt-1">Login to accept jobs</p>
+            </Link>
+            <Link
+              href="/fast-cleaners/admin/dashboard"
+              className="p-6 rounded-xl border border-cyan-500/30 bg-cyan-500/5 hover:bg-cyan-500/10 transition-colors text-center group"
+            >
+              <div className="text-2xl mb-2">✅</div>
+              <h4 className="text-white font-semibold text-sm group-hover:text-cyan-400 transition-colors">Admin Panel</h4>
+              <p className="text-xs text-gray-500 mt-1">Manage applications</p>
+            </Link>
+            <Link
+              href="/fast-cleaners/admin/jobs"
+              className="p-6 rounded-xl border border-cyan-500/30 bg-cyan-500/5 hover:bg-cyan-500/10 transition-colors text-center group"
+            >
+              <div className="text-2xl mb-2">📝</div>
+              <h4 className="text-white font-semibold text-sm group-hover:text-cyan-400 transition-colors">Post Jobs</h4>
+              <p className="text-xs text-gray-500 mt-1">Create cleaning jobs</p>
+            </Link>
+            <Link
+              href="/fast-cleaners/book"
+              className="p-6 rounded-xl border border-cyan-500/30 bg-cyan-500/5 hover:bg-cyan-500/10 transition-colors text-center group"
+            >
+              <div className="text-2xl mb-2">📅</div>
+              <h4 className="text-white font-semibold text-sm group-hover:text-cyan-400 transition-colors">Book Service</h4>
+              <p className="text-xs text-gray-500 mt-1">Request cleaning</p>
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

@@ -12,6 +12,7 @@ export interface Subsidiary {
   established: string;
   /** Route to the subsidiary's mini-site */
   route: string;
+  footerLinks?: { href: string; label: string }[];
 }
 
 /** Map subsidiary id → mini-site route */

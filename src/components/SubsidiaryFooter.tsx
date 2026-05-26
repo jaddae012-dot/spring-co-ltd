@@ -1,24 +1,45 @@
 import Link from "next/link";
+import { subsidiaries } from "@/data/subsidiaries";
 
 interface SubsidiaryFooterProps {
-  name: string;
-  color: string;
-  links: { href: string; label: string }[];
-  description: string;
+  subsidiary?: string;
+  name?: string;
+  color?: string;
+  links?: { href: string; label: string }[];
+  description?: string;
 }
 
 export default function SubsidiaryFooter({
-  name,
-  color,
-  links,
-  description,
+  subsidiary,
+  name: propName,
+  color: propColor,
+  links: propLinks,
+  description: propDescription,
 }: SubsidiaryFooterProps) {
+  // Look up subsidiary data if subsidiary prop is provided
+  let name = propName;
+  let color = propColor;
+  let links = propLinks || [];
+  let description = propDescription;
+
+  if (subsidiary) {
+    const subData = subsidiaries.find((s) => s.id === subsidiary);
+    if (subData) {
+      name = propName || subData.name;
+      color = propColor || subData.color;
+      description = propDescription || subData.description;
+      links = propLinks || [
+        { href: subData.route, label: "Home" },
+        { href: "/", label: "Back to SPRING.CO.LTD" },
+      ];
+    }
+  }
   return (
     <footer className="bg-[#060e1a] border-t border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
-            <h3 className="text-lg font-bold mb-3" style={{ color }}>
+            <h3 className="text-lg font-bold mb-3" style={color ? { color } : {}}>
               {name}
             </h3>
             <p className="text-gray-400 text-sm leading-relaxed">

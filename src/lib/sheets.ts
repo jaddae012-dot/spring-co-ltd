@@ -390,3 +390,78 @@ export async function appendGoogleSheetRow(
     throw new Error("Could not save sheet data.");
   }
 }
+
+// Update an existing row matching a column value. `matchColumn` should be the exact
+// header name to match against (case-sensitive as returned by the sheet). `updates`
+// is a map of header -> newValue. This reads the sheet, finds the row index, and
+// writes back the updated row values.
+export async function updateGoogleSheetRow(
+  sheetName: string,
+  matchColumn: string,
+  matchValue: string,
+  updates: Record<string, string | number | null>,
+  options?: { spreadsheetId?: string }
+) {
+  try {
+    const sheets = await getGoogleSheetsClient("write");
+    const spreadsheetId = options?.spreadsheetId || SPREADSHEET_ID;
+
+    if (!spreadsheetId) throw new Error("Missing spreadsheet ID.");
+
+    // Read full sheet
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: sheetName,
+    });
+
+    const rows = response.data.values || [];
+    if (!rows || rows.length === 0) return false;
+
+    const headers: string[] = rows[0].map((h: any) => String(h));
+
+    const matchColIndex = headers.findIndex((h) => h === matchColumn);
+    if (matchColIndex === -1) return false;
+
+    // Find the row index (1-based for Sheets) for the matching value
+    const dataRows = rows.slice(1);
+    const rowIdx = dataRows.findIndex((r: any[]) => String(r[matchColIndex] ?? "").trim() === String(matchValue).trim());
+    if (rowIdx === -1) return false;
+
+    const sheetRowNumber = rowIdx + 2; // account for header row
+
+    // Build the updated row values by copying existing row and applying updates
+    const existingRow = dataRows[rowIdx];
+    const updatedRow = headers.map((h, i) => {
+      if (updates.hasOwnProperty(h)) return updates[h] ?? "";
+      return existingRow[i] ?? "";
+    });
+
+    // Compute A1 range for the row: from A{n} to <lastColumnLetter>{n}
+    const lastColIndex = headers.length - 1;
+    // helper to convert 0-based index to column letters
+    const indexToColumn = (index: number) => {
+      let col = "";
+      while (index >= 0) {
+        col = String.fromCharCode((index % 26) + 65) + col;
+        index = Math.floor(index / 26) - 1;
+      }
+      return col;
+    };
+
+    const lastColLetter = indexToColumn(lastColIndex);
+    const range = `${sheetName}!A${sheetRowNumber}:${lastColLetter}${sheetRowNumber}`;
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range,
+      valueInputOption: "USER_ENTERED",
+      requestBody: { values: [updatedRow] },
+    });
+
+    sheetDataCache.delete(sheetName);
+    return true;
+  } catch (error) {
+    console.error("Error updating Google Sheet row:", error);
+    return false;
+  }
+}

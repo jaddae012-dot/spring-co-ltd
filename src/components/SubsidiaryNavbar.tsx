@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "@/components/ThemeToggle";
+import { subsidiaries } from "@/data/subsidiaries";
 
 interface SubNavLink {
   href: string;
@@ -12,19 +13,21 @@ interface SubNavLink {
 }
 
 interface SubsidiaryNavbarProps {
-  name: string;
-  shortName: string;
+  subsidiary?: string;
+  name?: string;
+  shortName?: string;
   logo?: string;
   logoSize?: "md" | "lg";
-  icon: string;
-  color: string;
-  gradient: string;
-  links: SubNavLink[];
+  icon?: string;
+  color?: string;
+  gradient?: string;
+  links?: SubNavLink[];
   ctaLabel?: string;
   ctaHref?: string;
 }
 
-function getBrandTextClass(color: string): string {
+function getBrandTextClass(color?: string): string {
+  if (!color) return "text-white";
   const normalized = color.toLowerCase();
   if (normalized === "#22c55e") return "text-green-500";
   if (normalized === "#b91c1c") return "text-red-700";
@@ -35,17 +38,44 @@ function getBrandTextClass(color: string): string {
 }
 
 export default function SubsidiaryNavbar({
-  name,
-  shortName,
-  logo,
+  subsidiary,
+  name: propName,
+  shortName: propShortName,
+  logo: propLogo,
   logoSize = "md",
-  icon,
-  color,
-  gradient,
-  links,
+  icon: propIcon,
+  color: propColor,
+  gradient: propGradient,
+  links: propLinks,
   ctaLabel,
   ctaHref,
 }: SubsidiaryNavbarProps) {
+  // Look up subsidiary data if subsidiary prop is provided
+  let name = propName;
+  let shortName = propShortName;
+  let logo = propLogo;
+  let icon = propIcon;
+  let color = propColor;
+  let gradient = propGradient;
+  let links = propLinks || [];
+
+  if (subsidiary) {
+    const subData = subsidiaries.find((s) => s.id === subsidiary);
+    if (subData) {
+      name = propName || subData.name;
+      shortName = propShortName || subData.shortName;
+      logo = propLogo || subData.logo;
+      icon = propIcon || subData.icon;
+      color = propColor || subData.color;
+      gradient = propGradient || subData.gradient;
+      links = propLinks || [
+        { href: subData.route, label: "Home" },
+        { href: subData.route + "/about", label: "About" },
+        { href: subData.route + "/contact", label: "Contact" },
+      ];
+    }
+  }
+
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const logoSizeClass = logoSize === "lg" ? "w-14 h-14" : "w-10 h-10";

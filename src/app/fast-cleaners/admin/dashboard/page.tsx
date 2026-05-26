@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getGoogleSheetData } from "@/lib/sheets";
 import FastCleanersWorkflowAdmin from "@/components/dashboard/FastCleanersWorkflowAdmin";
-import SectionCard from "@/components/dashboard/SectionCard";
+import StatsCard from "@/components/dashboard/StatsCard";
 
 function getField(row: Record<string, unknown>, aliases: string[]): string {
   const normalizedEntries = Object.entries(row).map(([key, value]) => [
@@ -62,7 +62,6 @@ async function getRecentApplications() {
 
     return employees
       .slice(-10)
-      .reverse()
       .map((emp) => ({
         ref: getField(emp, ["ApplicationRef", "Application Ref"]),
         name: getField(emp, ["FullName", "Full Name", "Name"]),
@@ -106,27 +105,27 @@ export default async function FastCleanersAdminDashboard() {
 
         {/* Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-          <SectionCard
+          <StatsCard
             label="Total Applications"
             value={stats.total}
             color="blue"
           />
-          <SectionCard
+          <StatsCard
             label="Pending Review"
             value={stats.pending}
             color="yellow"
           />
-          <SectionCard
+          <StatsCard
             label="Approved"
             value={stats.approved}
             color="green"
           />
-          <SectionCard
+          <StatsCard
             label="Active Cleaners"
             value={stats.active}
             color="purple"
           />
-          <SectionCard
+          <StatsCard
             label="Rejected"
             value={stats.rejected}
             color="red"

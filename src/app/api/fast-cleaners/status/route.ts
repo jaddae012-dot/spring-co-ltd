@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getGoogleSheetData, appendGoogleSheetRow } from "@/lib/sheets";
+import { getGoogleSheetData, appendGoogleSheetRow, updateGoogleSheetRow } from "@/lib/sheets";
 
 function normalize(value: unknown): string {
   return String(value ?? "").trim();
@@ -106,9 +106,20 @@ export async function PATCH(req: NextRequest) {
       notes || "Status updated",
     ]);
 
-    // Note: In a production system, you'd update the FC_Employees sheet directly
-    // For now, this logs the change to FC_StatusHistory
-    // A full implementation would need the ability to update existing rows in Google Sheets
+    // Attempt to update the FC_Employees row to reflect the new status and hourly rate
+    // Match on the ApplicationRef header and set Status and HourlyRate columns if they exist
+    try {
+      const updated = await updateGoogleSheetRow("FC_Employees", "ApplicationRef", applicationRef, {
+        Status: newStatus,
+        HourlyRate: hourlyRate || "",
+      });
+
+      if (!updated) {
+        console.warn("Could not update FC_Employees row — row not found or update failed.");
+      }
+    } catch (e) {
+      console.error("Error attempting to update FC_Employees:", e);
+    }
 
     return NextResponse.json({
       data: {
