@@ -51,7 +51,8 @@ export async function getSheetBlogPosts(
     const timeout = setTimeout(() => controller.abort(), 8000);
 
     const res = await fetch(getSheetCsvUrl(sheetId, sheetName), {
-      cache: "no-store", // Always fetch fresh data
+      // cache: "no-store", // Always fetch fresh data - Removed for build
+      next: { revalidate: 3600 }, // Revalidate every hour
       signal: controller.signal,
     });
 

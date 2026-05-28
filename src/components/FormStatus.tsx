@@ -1,6 +1,14 @@
 "use client";
 
-export default function FormStatus({ status, message }: { status: string; message: string }) {
+export default function FormStatus({
+  status,
+  message,
+  applicationRef,
+}: {
+  status: string;
+  message: string;
+  applicationRef?: string;
+}) {
   if (status === "idle") return null;
 
   return (
@@ -13,7 +21,18 @@ export default function FormStatus({ status, message }: { status: string; messag
           : "bg-white/10 text-gray-300 border border-white/10"
       }`}
     >
-      {status === "loading" ? "Sending..." : message}
+      {status === "loading" ? (
+        "Sending..."
+      ) : (
+        <>
+          {message}
+          {applicationRef && (
+            <p className="mt-2 text-xs">
+              Reference: <strong>{applicationRef}</strong>
+            </p>
+          )}
+        </>
+      )}
     </div>
   );
 }

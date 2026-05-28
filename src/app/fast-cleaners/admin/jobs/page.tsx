@@ -1,6 +1,6 @@
 import Link from "next/link";
 import JobPostingForm from "@/components/JobPostingForm";
-import SectionCard from "@/components/dashboard/SectionCard";
+import StatCard from "@/components/dashboard/StatCard";
 import { getGoogleSheetData } from "@/lib/sheets";
 
 function getField(row: Record<string, unknown>, aliases: string[]): string {
@@ -104,10 +104,10 @@ export default async function JobPostingPage() {
 
         {/* Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <SectionCard label="Total Jobs" value={stats.total} color="blue" />
-          <SectionCard label="Open" value={stats.open} color="yellow" />
-          <SectionCard label="Assigned" value={stats.assigned} color="purple" />
-          <SectionCard label="Completed" value={stats.completed} color="green" />
+          <StatCard label="Total Jobs" value={stats.total} color="blue" />
+          <StatCard label="Open" value={stats.open} color="yellow" />
+          <StatCard label="Assigned" value={stats.assigned} color="purple" />
+          <StatCard label="Completed" value={stats.completed} color="green" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
