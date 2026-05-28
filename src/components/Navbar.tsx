@@ -64,12 +64,6 @@ export default function Navbar() {
               </Link>
             ))}
             <Link
-              href="/prime-college/admissions"
-              className="ml-4 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg shadow-blue-500/20"
-            >
-              Apply to Prime College
-            </Link>
-            <Link
               href="/office"
               className="ml-2 px-5 py-2.5 rounded-xl border border-emerald-400/40 text-emerald-200 text-sm font-semibold hover:bg-emerald-500/10 transition-all duration-200"
             >
@@ -119,13 +113,6 @@ export default function Navbar() {
         {isOpen && (
           <div className="md:hidden pb-4 border-t border-white/10 animate-in fade-in duration-200">
             <div className="flex flex-col space-y-1 pt-4">
-              <Link
-                href="/prime-college/admissions"
-                onClick={() => setIsOpen(false)}
-                className="mx-4 mb-1 px-5 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-semibold text-center hover:from-blue-600 hover:to-indigo-700 transition-all"
-              >
-                Apply to Prime College
-              </Link>
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
