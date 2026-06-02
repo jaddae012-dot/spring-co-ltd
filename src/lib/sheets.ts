@@ -20,6 +20,9 @@ function getSheetCsvUrl(sheetId: string, sheetName: string): string {
   return `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
 }
 
+// Fetch timeout (ms) for public Google Sheets JSON endpoint. Configurable via env var.
+const SHEET_FETCH_TIMEOUT_MS = Number(process.env.SHEET_FETCH_TIMEOUT_MS) || 30000;
+
 // Create a URL-friendly slug from a title
 function slugify(text: string): string {
   return text
@@ -48,11 +51,10 @@ export async function getSheetBlogPosts(
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    const timeout = setTimeout(() => controller.abort(), SHEET_FETCH_TIMEOUT_MS);
 
     const res = await fetch(getSheetCsvUrl(sheetId, sheetName), {
-      // cache: "no-store", // Always fetch fresh data - Removed for build
-      next: { revalidate: 3600 }, // Revalidate every hour
+      cache: "no-store", // Always fetch fresh data
       signal: controller.signal,
     });
 
@@ -203,7 +205,7 @@ export async function getCarouselPhotosFromSheet(
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    const timeout = setTimeout(() => controller.abort(), SHEET_FETCH_TIMEOUT_MS);
 
     const res = await fetch(getSheetCsvUrl(sheetId, sheetName), {
       cache: "no-store",
@@ -303,6 +305,49 @@ const sheetDataCache = new Map<string, SheetCacheEntry>();
 
 type GoogleSheetsScope = "read" | "write";
 
+// Helper to wrap a promise with a timeout. Rejects with name 'TimeoutError' on timeout.
+function withTimeout<T>(promise: Promise<T>, ms: number = SHEET_FETCH_TIMEOUT_MS, label?: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout>;
+  return new Promise<T>((resolve, reject) => {
+    timer = setTimeout(() => {
+      const err = new Error(`${label || 'Operation'} timed out after ${ms}ms`);
+      err.name = 'TimeoutError';
+      reject(err);
+    }, ms);
+
+    promise
+      .then((v) => {
+        clearTimeout(timer);
+        resolve(v);
+      })
+      .catch((e) => {
+        clearTimeout(timer);
+        reject(e);
+      });
+  });
+}
+
+function sleep(ms: number) {
+  return new Promise((res) => setTimeout(res, ms));
+}
+
+// Simple retry helper with exponential backoff. Retries on any error.
+async function retry<T>(fn: () => Promise<T>, attempts = 2, initialDelay = 500): Promise<T> {
+  let delay = initialDelay;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      if (i > 0) console.warn(`Retry attempt ${i + 1}/${attempts} after ${delay}ms`);
+      return await fn();
+    } catch (err) {
+      if (i === attempts - 1) throw err;
+      await sleep(delay);
+      delay *= 2;
+    }
+  }
+  // Should never reach here
+  throw new Error("Retry exhausted");
+}
+
 async function getGoogleSheetsClient(scope: GoogleSheetsScope) {
   const auth = new google.auth.GoogleAuth({
     credentials: {
@@ -326,10 +371,14 @@ export async function getGoogleSheetData(sheetName: string) {
 
   try {
     const sheets = await getGoogleSheetsClient("read");
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId: SPREADSHEET_ID,
-      range: sheetName,
-    });
+    const response = await withTimeout(
+      sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: sheetName,
+      }),
+      SHEET_FETCH_TIMEOUT_MS,
+      `Google Sheets API (${sheetName})`
+    );
 
     const rows = response.data.values;
     if (rows && rows.length) {
@@ -358,6 +407,16 @@ export async function getGoogleSheetData(sheetName: string) {
     return [];
   } catch (error) {
     console.error("Error fetching Google Sheet data:", error);
+    // On timeout, return cached data if available to avoid hard failures
+    if (error instanceof Error && error.name === 'TimeoutError') {
+      const cachedFallback = sheetDataCache.get(sheetName);
+      if (cachedFallback) {
+        console.warn(`Returning cached data for sheet ${sheetName} after timeout`);
+        return cachedFallback.data;
+      }
+      throw new Error('Google Sheets API request timed out');
+    }
+
     throw new Error("Could not fetch sheet data.");
   }
 }
@@ -375,94 +434,28 @@ export async function appendGoogleSheetRow(
       throw new Error("Missing spreadsheet ID.");
     }
 
-    await sheets.spreadsheets.values.append({
-      spreadsheetId,
-      range: `${sheetName}!A1`,
-      valueInputOption: "USER_ENTERED",
-      insertDataOption: "INSERT_ROWS",
-      requestBody: {
-        values: [row],
-      },
-    });
+    await retry(() =>
+      withTimeout(
+        sheets.spreadsheets.values.append({
+          spreadsheetId,
+          range: `${sheetName}!A1`,
+          valueInputOption: "USER_ENTERED",
+          insertDataOption: "INSERT_ROWS",
+          requestBody: {
+            values: [row],
+          },
+        }),
+        SHEET_FETCH_TIMEOUT_MS,
+        `Google Sheets API append (${sheetName})`
+      ),
+      3,
+      700
+    );
 
     sheetDataCache.delete(sheetName);
   } catch (error) {
-    console.error("Error appending Google Sheet row:", error);
-    throw new Error("Could not save sheet data.");
-  }
-}
-
-// Update an existing row matching a column value. `matchColumn` should be the exact
-// header name to match against (case-sensitive as returned by the sheet). `updates`
-// is a map of header -> newValue. This reads the sheet, finds the row index, and
-// writes back the updated row values.
-export async function updateGoogleSheetRow(
-  sheetName: string,
-  matchColumn: string,
-  matchValue: string,
-  updates: Record<string, string | number | null>,
-  options?: { spreadsheetId?: string }
-) {
-  try {
-    const sheets = await getGoogleSheetsClient("write");
-    const spreadsheetId = options?.spreadsheetId || SPREADSHEET_ID;
-
-    if (!spreadsheetId) throw new Error("Missing spreadsheet ID.");
-
-    // Read full sheet
-    const response = await sheets.spreadsheets.values.get({
-      spreadsheetId,
-      range: sheetName,
-    });
-
-    const rows = response.data.values || [];
-    if (!rows || rows.length === 0) return false;
-
-    const headers: string[] = rows[0].map((h: any) => String(h));
-
-    const matchColIndex = headers.findIndex((h) => h === matchColumn);
-    if (matchColIndex === -1) return false;
-
-    // Find the row index (1-based for Sheets) for the matching value
-    const dataRows = rows.slice(1);
-    const rowIdx = dataRows.findIndex((r: any[]) => String(r[matchColIndex] ?? "").trim() === String(matchValue).trim());
-    if (rowIdx === -1) return false;
-
-    const sheetRowNumber = rowIdx + 2; // account for header row
-
-    // Build the updated row values by copying existing row and applying updates
-    const existingRow = dataRows[rowIdx];
-    const updatedRow = headers.map((h, i) => {
-      if (updates.hasOwnProperty(h)) return updates[h] ?? "";
-      return existingRow[i] ?? "";
-    });
-
-    // Compute A1 range for the row: from A{n} to <lastColumnLetter>{n}
-    const lastColIndex = headers.length - 1;
-    // helper to convert 0-based index to column letters
-    const indexToColumn = (index: number) => {
-      let col = "";
-      while (index >= 0) {
-        col = String.fromCharCode((index % 26) + 65) + col;
-        index = Math.floor(index / 26) - 1;
-      }
-      return col;
-    };
-
-    const lastColLetter = indexToColumn(lastColIndex);
-    const range = `${sheetName}!A${sheetRowNumber}:${lastColLetter}${sheetRowNumber}`;
-
-    await sheets.spreadsheets.values.update({
-      spreadsheetId,
-      range,
-      valueInputOption: "USER_ENTERED",
-      requestBody: { values: [updatedRow] },
-    });
-
-    sheetDataCache.delete(sheetName);
-    return true;
-  } catch (error) {
-    console.error("Error updating Google Sheet row:", error);
-    return false;
+    console.error(`Error appending Google Sheet row to ${sheetName}:`, error);
+    // Rethrow the original error so calling code / logs include the real failure reason
+    throw error instanceof Error ? error : new Error("Could not save sheet data.");
   }
 }
