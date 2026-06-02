@@ -459,3 +459,74 @@ export async function appendGoogleSheetRow(
     throw error instanceof Error ? error : new Error("Could not save sheet data.");
   }
 }
+
+// Update a single row in a sheet by matching a column's value.
+// matchColumn: header name to match (e.g., 'ApplicationRef')
+// matchValue: the value to find in that column
+// updates: object mapping header names -> new value
+export async function updateGoogleSheetRow(
+  sheetName: string,
+  matchColumn: string,
+  matchValue: string,
+  updates: Record<string, string>
+) {
+  const spreadsheetId = SPREADSHEET_ID;
+  if (!spreadsheetId) throw new Error("Missing spreadsheet ID.");
+
+  const sheets = await getGoogleSheetsClient("write");
+
+  // Fetch full values to locate row and headers
+  const response = await withTimeout(
+    sheets.spreadsheets.values.get({ spreadsheetId, range: sheetName }),
+    SHEET_FETCH_TIMEOUT_MS,
+    `Google Sheets API get for update (${sheetName})`
+  );
+
+  const rows = response.data.values || [];
+  if (rows.length === 0) return false;
+
+  const headers: string[] = rows[0].map(String);
+
+  const normalizeHeader = (h: string) => String(h || "").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+  const targetHeader = normalizeHeader(matchColumn);
+
+  const headerIndex = headers.findIndex((h) => normalizeHeader(h) === targetHeader || normalizeHeader(h).includes(targetHeader) || targetHeader.includes(normalizeHeader(h)));
+  if (headerIndex === -1) return false;
+
+  // Find the row index (in the sheet values array) matching the value
+  const sheetRowIndex = rows.findIndex((r) => String(r[headerIndex] ?? "").trim() === String(matchValue ?? "").trim());
+  if (sheetRowIndex === -1) return false;
+
+  // Prepare updated row (ensure length at least headers.length)
+  const originalRow = rows[sheetRowIndex].slice();
+  const updatedRow = originalRow.slice();
+
+  for (const [key, val] of Object.entries(updates || {})) {
+    const keyNorm = normalizeHeader(key);
+    const idx = headers.findIndex((h) => normalizeHeader(h) === keyNorm || normalizeHeader(h).includes(keyNorm) || keyNorm.includes(normalizeHeader(h)));
+    if (idx !== -1) {
+      updatedRow[idx] = val;
+    }
+  }
+
+  // Write back the updated row (A1 range uses 1-based sheet rows)
+  const sheetRowNumber = sheetRowIndex + 1; // rows[0] is header -> sheet row 1
+
+  await retry(() =>
+    withTimeout(
+      sheets.spreadsheets.values.update({
+        spreadsheetId,
+        range: `${sheetName}!A${sheetRowNumber}`,
+        valueInputOption: "USER_ENTERED",
+        requestBody: { values: [updatedRow] },
+      }),
+      SHEET_FETCH_TIMEOUT_MS,
+      `Google Sheets API update (${sheetName})`
+    ),
+    3,
+    700
+  );
+
+  sheetDataCache.delete(sheetName);
+  return true;
+}

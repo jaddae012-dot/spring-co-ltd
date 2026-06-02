@@ -3,6 +3,8 @@ import { getGoogleSheetData } from "@/lib/sheets";
 import FastCleanersWorkflowAdmin from "@/components/dashboard/FastCleanersWorkflowAdmin";
 import StatsCard from "@/components/dashboard/StatsCard";
 
+export const dynamic = "force-dynamic";
+
 function getField(row: Record<string, unknown>, aliases: string[]): string {
   const normalizedEntries = Object.entries(row).map(([key, value]) => [
     key.replace(/[^a-zA-Z0-9]/g, "").toLowerCase(),

@@ -3,6 +3,8 @@ import JobPostingForm from "@/components/JobPostingForm";
 import StatCard from "@/components/dashboard/StatCard";
 import { getGoogleSheetData } from "@/lib/sheets";
 
+export const dynamic = "force-dynamic";
+
 function getField(row: Record<string, unknown>, aliases: string[]): string {
   const normalizedEntries = Object.entries(row).map(([key, value]) => [
     key.replace(/[^a-zA-Z0-9]/g, "").toLowerCase(),
