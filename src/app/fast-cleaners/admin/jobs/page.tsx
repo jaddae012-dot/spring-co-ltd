@@ -100,6 +100,12 @@ export default async function JobPostingPage() {
               >
                 Back to Dashboard
               </Link>
+              <Link
+                href="/api/fast-cleaners/admin/logout"
+                className="rounded-md border border-rose-700 px-3 py-2 text-sm font-semibold text-rose-300 transition hover:border-rose-500 hover:text-rose-200"
+              >
+                Logout
+              </Link>
             </div>
           </div>
         </header>
