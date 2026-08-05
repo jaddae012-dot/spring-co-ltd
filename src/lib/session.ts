@@ -7,7 +7,7 @@ export interface SessionData {
   isLoggedIn: boolean;
   id: string;
   name?: string;
-  userType: "student" | "tutor" | "admin";
+  userType: "student" | "tutor" | "admin" | "fieldOffice";
 }
 
 export async function getSession() {

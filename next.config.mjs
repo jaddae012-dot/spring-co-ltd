@@ -3,6 +3,9 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
+  webpack: (config, { isServer }) => {
+    return config;
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60,

@@ -11,6 +11,7 @@ const navLinks = [
   { href: "/spring-cooperative", label: "Home" },
   { href: "/spring-cooperative/services", label: "Services" },
   { href: "/spring-cooperative/membership", label: "Membership" },
+  { href: "/spring-cooperative/portal", label: "Member Portal" },
   { href: "/spring-cooperative/about", label: "About" },
   { href: "/spring-cooperative/contact", label: "Contact" },
 ];
@@ -28,7 +29,7 @@ export default function SpringCooperativeLayout({ children }: { children: React.
         ctaLabel="Join Now"
         ctaHref="/spring-cooperative/membership"
       />
-      {children}
+      <div className="pb-20">{children}</div>
       <SubsidiaryFooter
         name="SPRING CO-OPERATIVE UNION"
         color="#eab308"

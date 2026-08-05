@@ -9,7 +9,7 @@ export interface Subsidiary {
   color: string;
   gradient: string;
   services: string[];
-  established: string;
+  established?: string;
   /** Route to the subsidiary's mini-site */
   route: string;
   footerLinks?: { href: string; label: string }[];
@@ -157,7 +157,6 @@ export const subsidiaries: Subsidiary[] = [
       "Group Insurance",
       "Community Development Projects",
     ],
-    established: "2025",
     route: "/spring-cooperative",
   },
 ];

@@ -20,7 +20,7 @@ export default function BookingPage() {
               Request a Cleaning Service
             </h1>
             <p className="text-lg text-gray-400">
-              Professional cleaning on demand. Fill out the form below and we'll connect
+              Professional cleaning on demand. Fill out the form below and we&apos;ll connect
               you with a trained cleaner in your area.
             </p>
           </div>

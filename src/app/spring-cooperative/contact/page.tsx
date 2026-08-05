@@ -33,7 +33,13 @@ export default function CooperativeContact() {
 
             <div className="lg:col-span-2 glass rounded-2xl p-8">
               <h2 className="text-2xl font-bold text-white mb-6">Send a Message</h2>
-              <FormWrapper subject="SPRING Co-operative - Contact" buttonText="Send Message" buttonClass="w-full py-4 rounded-2xl bg-gradient-to-r from-yellow-500 to-amber-600 text-white font-semibold text-lg transition-colors duration-200 shadow-lg">
+              <FormWrapper
+                subject="SPRING Co-operative - Contact"
+                apiEndpoint="/api/spring-cooperative/contact"
+                submitToWeb3Forms={false}
+                buttonText="Send Message"
+                buttonClass="w-full py-4 rounded-2xl bg-gradient-to-r from-yellow-500 to-amber-600 text-white font-semibold text-lg transition-colors duration-200 shadow-lg"
+              >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm text-gray-400 mb-2">Name</label>

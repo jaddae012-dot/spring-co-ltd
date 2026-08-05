@@ -159,7 +159,7 @@ export default function AvailableJobsList({
 
       {jobs.length === 0 && !isLoading && !message && (
         <div className="text-center py-12 text-slate-400">
-          <p>Click "Refresh Available Jobs" to see available cleaning opportunities.</p>
+          <p>Click &quot;Refresh Available Jobs&quot; to see available cleaning opportunities.</p>
         </div>
       )}
     </div>

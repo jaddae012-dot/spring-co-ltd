@@ -5,5 +5,20 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
   const session = await getSession();
   session.destroy();
-  return NextResponse.redirect(new URL("/prime-college/login", req.url));
+
+  const referer = req.headers.get("referer") || "";
+  let redirectPath = "/";
+
+  try {
+    const refererUrl = new URL(referer);
+    if (refererUrl.pathname.startsWith("/spring-cooperative")) {
+      redirectPath = "/spring-cooperative/login";
+    } else if (refererUrl.pathname.startsWith("/prime-college")) {
+      redirectPath = "/prime-college/login";
+    }
+  } catch {
+    redirectPath = "/";
+  }
+
+  return NextResponse.redirect(new URL(redirectPath, req.url));
 }

@@ -94,7 +94,8 @@ export default async function SubsidiaryPage({ params }: Props) {
                 {subsidiary.name}
               </h1>
               <p className="text-lg text-gray-400">
-                A SPRING.CO.LTD subsidiary — Est. {subsidiary.established}
+                A SPRING.CO.LTD subsidiary
+                {subsidiary.established && ` — Est. ${subsidiary.established}`}
               </p>
             </div>
           </div>

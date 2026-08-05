@@ -5,10 +5,12 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import ThemeToggle from "@/components/ThemeToggle";
+import { isSubsidiaryRoute } from "@/lib/is-subsidiary-route";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const isSubsidiary = isSubsidiaryRoute(pathname);
 
   useEffect(() => {
     setIsOpen(false);
@@ -31,6 +33,8 @@ export default function Navbar() {
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [isOpen]);
+
+  if (isSubsidiary) return null;
 
   const navLinks = [
     { href: "/", label: "Home" },

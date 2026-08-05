@@ -2,22 +2,23 @@ interface StatCardProps {
   label: string;
   value: number | string;
   color?: "blue" | "yellow" | "purple" | "green";
+  subtitle?: string;
 }
 
 const colorClasses = {
-  blue: "bg-blue-500/10 text-blue-300 border-blue-500/20",
-  yellow: "bg-yellow-500/10 text-yellow-300 border-yellow-500/20",
-  purple: "bg-purple-500/10 text-purple-300 border-purple-500/20",
-  green: "bg-green-500/10 text-green-300 border-green-500/20",
+  blue: "border-blue-500/20 text-blue-300",
+  yellow: "border-yellow-500/20 text-yellow-300",
+  purple: "border-purple-500/20 text-purple-300",
+  green: "border-emerald-500/20 text-emerald-300",
 };
 
-export default function StatCard({ label, value, color = "blue" }: StatCardProps) {
+export default function StatCard({ label, value, color = "blue", subtitle }: StatCardProps) {
   return (
-    <div
-      className={`p-4 rounded-lg border ${colorClasses[color]}`}
-    >
-      <p className="text-sm font-medium text-gray-400">{label}</p>
-      <p className="text-3xl font-bold">{value}</p>
+    <div className={`group relative overflow-hidden rounded-[1.75rem] border bg-slate-950/85 p-6 shadow-[0_30px_80px_-40px_rgba(0,0,0,0.75)] transition duration-300 hover:-translate-y-1 hover:border-white/10 ${colorClasses[color]}`}>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-cyan-400/70 via-slate-400/30 to-emerald-400/70 opacity-0 transition duration-300 group-hover:opacity-100" />
+      <p className="text-xs uppercase tracking-[0.32em] text-slate-500">{label}</p>
+      <p className="mt-4 text-3xl font-semibold text-white">{value}</p>
+      {subtitle ? <p className="mt-2 text-sm text-slate-400">{subtitle}</p> : null}
     </div>
   );
 }

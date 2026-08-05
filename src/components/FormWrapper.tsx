@@ -20,7 +20,7 @@ export default function FormWrapper({
   apiEndpoint,
   submitToWeb3Forms,
 }: FormWrapperProps) {
-  const { status, message, handleSubmit } = useFormSubmit({
+  const { status, message, applicationRef, handleSubmit } = useFormSubmit({
     subject,
     apiEndpoint,
     submitToWeb3Forms,
@@ -29,7 +29,7 @@ export default function FormWrapper({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {children}
-      <FormStatus status={status} message={message} />
+      <FormStatus status={status} message={message} applicationRef={applicationRef} />
       <button
         type="submit"
         disabled={status === "loading"}
