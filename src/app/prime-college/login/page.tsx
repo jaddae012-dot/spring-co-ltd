@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [id, setId] = useState("");
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
@@ -32,16 +33,30 @@ export default function LoginPage() {
 
       if (res.ok) {
         const { userType } = await res.json();
+        const requestedPath = searchParams.get("from");
+        const safeReturnPath = requestedPath?.startsWith("/") && !requestedPath.startsWith("//")
+          ? requestedPath
+          : null;
+        let destination = "/prime-college/dashboard";
 
         if (userType === "student") {
-          router.replace("/prime-college/dashboard");
+          destination = safeReturnPath || "/prime-college/dashboard";
         } else if (userType === "tutor") {
-          router.replace("/prime-college/tutor/dashboard");
+          destination = safeReturnPath?.startsWith("/prime-college/tutor/")
+            ? safeReturnPath
+            : "/prime-college/tutor/dashboard";
         } else if (userType === "admin") {
-          router.replace("/prime-college/admin/dashboard");
+          destination = safeReturnPath?.startsWith("/prime-college/admin/")
+            ? safeReturnPath
+            : "/prime-college/admin/dashboard";
         } else {
           setError("Invalid user type received.");
+          return;
         }
+
+        // Force a fresh request so the newly written session cookie is present
+        // before middleware and the server page evaluate the protected route.
+        window.location.replace(destination);
       } else {
         const { message } = await res.json();
         setError(message || "Login failed. Please check your credentials.");
