@@ -136,19 +136,30 @@ html.theme-light .bg-gray-900 {
 
 html.theme-light .bg-slate-900,
 html.theme-light .bg-gray-800 {
-  background-color: #eef2ff !important;
+  background-color: #ffffff !important;
 }
 
 html.theme-light .bg-slate-800,
 html.theme-light .bg-gray-700 {
+  background-color: #f1f5f9 !important;
+}
+
+html.theme-light .bg-slate-700,
+html.theme-light .bg-gray-600 {
   background-color: #e2e8f0 !important;
+}
+
+html.theme-light .bg-slate-950\/50,
+html.theme-light .bg-slate-950\/40,
+html.theme-light .bg-gray-950\/50 {
+  background-color: #f8fafc !important;
 }
 
 html.theme-light .bg-slate-900\/80,
 html.theme-light .bg-slate-900\/70,
 html.theme-light .bg-slate-900\/60,
 html.theme-light .bg-gray-800\/80 {
-  background-color: rgba(238, 242, 255, 0.82) !important;
+  background-color: rgba(255, 255, 255, 0.96) !important;
 }
 
 html.theme-light .bg-blue-900\/40,
@@ -161,7 +172,44 @@ html.theme-light .border-slate-700,
 html.theme-light .border-slate-600,
 html.theme-light .border-slate-500,
 html.theme-light .border-gray-600 {
-  border-color: rgba(15, 23, 42, 0.18) !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.theme-light .border-slate-800,
+html.theme-light .border-gray-700 {
+  border-color: #e2e8f0 !important;
+}
+
+html.theme-light input,
+html.theme-light textarea,
+html.theme-light select {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html.theme-light input::placeholder,
+html.theme-light textarea::placeholder {
+  color: #64748b !important;
+}
+
+html.theme-light input:focus,
+html.theme-light textarea:focus,
+html.theme-light select:focus {
+  border-color: #2563eb !important;
+  outline-color: #2563eb !important;
+}
+
+html.theme-light table thead {
+  background-color: #f1f5f9 !important;
+}
+
+html.theme-light table tbody tr {
+  border-color: #e2e8f0 !important;
+}
+
+html.theme-light table tbody tr:nth-child(even) {
+  background-color: #f8fafc !important;
 }
 
 html.theme-light .border-blue-500\/20,
