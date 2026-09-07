@@ -65,7 +65,7 @@ export default async function PrimeCollegeAssessmentsPage() {
               <div className="mt-5">
                 <Link
                   href={`/prime-college/assessments/${assessment.id}`}
-                  className="inline-flex w-full items-center justify-center rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:opacity-90"
+                  className="inline-flex w-full items-center justify-center rounded-lg bg-linear-to-r from-cyan-500 to-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:opacity-90"
                 >
                   {assessment.type === "quiz" ? "Start Quiz" : "Open Assignment"}
                 </Link>

@@ -122,6 +122,10 @@ function asText(value: unknown): string {
   return String(value ?? "").trim();
 }
 
+function normalizeCourse(value: unknown): string {
+  return asText(value).replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+}
+
 function parseQuestions(raw: unknown): AssessmentQuestion[] {
   if (!raw) return [];
 
@@ -153,7 +157,7 @@ export async function getPrimeCollegeAssessments(options?: { studentId?: string;
         const assignmentMode = asText(row.AssignmentMode ?? row["Assignment Mode"] ?? "all").toLowerCase() === "selected" ? "selected" : "all";
         const assignedStudentIds = asText(row.AssignedStudentIDs ?? row["Assigned Student IDs"] ?? row.AssignedStudentIds)
           .split(/[\s,]+/)
-          .map((value) => value.trim().toLowerCase())
+          .map((value) => normalizeCourse(value))
           .filter(Boolean);
 
         if (!assessmentId || !title) return null;
@@ -177,13 +181,14 @@ export async function getPrimeCollegeAssessments(options?: { studentId?: string;
       .filter(Boolean) as PrimeCollegeAssessment[];
 
     if (normalized.length > 0) {
-      const studentId = asText(options?.studentId).toLowerCase();
-      const program = asText(options?.program).toLowerCase();
+      const studentId = normalizeCourse(options?.studentId);
+      const program = normalizeCourse(options?.program);
       return normalized.filter((assessment) => {
         if (assessment.assignmentMode === "selected") {
           return Boolean(studentId && assessment.assignedStudentIds.includes(studentId));
         }
-        return !program || assessment.course.toLowerCase() === program;
+        const course = normalizeCourse(assessment.course);
+        return !program || course === program || course.includes(program) || program.includes(course);
       });
     }
   } catch {
@@ -207,7 +212,7 @@ export async function getAssessmentById(id: string, studentId?: string) {
   }
 
   if (!assessment || !studentId || assessment.assignmentMode === "all") return assessment;
-  return assessment.assignedStudentIds.includes(studentId.trim().toLowerCase()) ? assessment : null;
+  return assessment.assignedStudentIds.includes(normalizeCourse(studentId)) ? assessment : null;
 }
 
 export const primeCollegeAssessments = fallbackAssessments;
