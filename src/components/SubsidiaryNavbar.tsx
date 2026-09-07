@@ -24,6 +24,7 @@ interface SubsidiaryNavbarProps {
   links?: SubNavLink[];
   ctaLabel?: string;
   ctaHref?: string;
+  secretGestureHref?: string;
 }
 
 function getBrandTextClass(color?: string): string {
@@ -49,6 +50,7 @@ export default function SubsidiaryNavbar({
   links: propLinks,
   ctaLabel,
   ctaHref,
+  secretGestureHref,
 }: SubsidiaryNavbarProps) {
   // Look up subsidiary data if subsidiary prop is provided
   let name = propName;
@@ -118,7 +120,7 @@ export default function SubsidiaryNavbar({
             </svg>
             SPRING.CO.LTD
           </Link>
-          <ThemeToggle compact />
+          <ThemeToggle compact secretGestureHref={secretGestureHref} />
         </div>
 
         {/* Main navbar */}
@@ -205,7 +207,7 @@ export default function SubsidiaryNavbar({
                 </Link>
               ))}
               <div className="px-4 pt-2">
-                <ThemeToggle />
+                <ThemeToggle secretGestureHref={secretGestureHref} />
               </div>
             </div>
           </div>

@@ -106,7 +106,7 @@ export default function LoginPage() {
           <div>
             <button
               type="submit"
-              className="w-full px-8 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold text-lg transition-colors duration-200 shadow-lg shadow-blue-500/25 disabled:opacity-50"
+              className="w-full px-8 py-3 rounded-lg bg-linear-to-r from-blue-500 to-indigo-600 text-white font-semibold text-lg transition-colors duration-200 shadow-lg shadow-blue-500/25 disabled:opacity-50"
               disabled={isLoading}
             >
               {isLoading ? "Logging in..." : "Login"}

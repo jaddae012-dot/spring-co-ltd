@@ -28,6 +28,7 @@ export default function SpringCooperativeLayout({ children }: { children: React.
         links={navLinks}
         ctaLabel="Join Now"
         ctaHref="/spring-cooperative/membership"
+        secretGestureHref="/spring-cooperative/secret-login?from=/spring-cooperative/business-profile"
       />
       <div className="pb-20">{children}</div>
       <SubsidiaryFooter

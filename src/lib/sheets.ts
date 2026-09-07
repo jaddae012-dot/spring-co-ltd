@@ -363,7 +363,10 @@ async function getGoogleSheetsClient(scope: GoogleSheetsScope) {
   return google.sheets({ version: "v4", auth });
 }
 
-export async function getGoogleSheetData(sheetName: string) {
+export async function getGoogleSheetData(
+  sheetName: string,
+  options?: { timeoutMs?: number }
+) {
   const cached = sheetDataCache.get(sheetName);
   if (cached && cached.expiresAt > Date.now()) {
     return cached.data;
@@ -376,7 +379,7 @@ export async function getGoogleSheetData(sheetName: string) {
         spreadsheetId: SPREADSHEET_ID,
         range: sheetName,
       }),
-      SHEET_FETCH_TIMEOUT_MS,
+      options?.timeoutMs || SHEET_FETCH_TIMEOUT_MS,
       `Google Sheets API (${sheetName})`
     );
 
@@ -406,7 +409,11 @@ export async function getGoogleSheetData(sheetName: string) {
 
     return [];
   } catch (error) {
-    console.error("Error fetching Google Sheet data:", error);
+    if (error instanceof Error && error.name === "TimeoutError") {
+      console.warn(`Google Sheets request timed out for ${sheetName}; using fallback data when available.`);
+    } else {
+      console.error("Error fetching Google Sheet data:", error);
+    }
     // On timeout, return cached data if available to avoid hard failures
     if (error instanceof Error && error.name === 'TimeoutError') {
       const cachedFallback = sheetDataCache.get(sheetName);

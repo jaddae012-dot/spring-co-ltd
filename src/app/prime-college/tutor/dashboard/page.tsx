@@ -82,7 +82,7 @@ async function getTutorData(tutorId: string) {
 
 async function getResources(): Promise<ResourceItem[]> {
   try {
-    const rows = (await getGoogleSheetData("resources")) as Record<string, unknown>[];
+    const rows = (await getGoogleSheetData("resources", { timeoutMs: 8000 })) as Record<string, unknown>[];
     return rows
       .map((row) => ({
         title: String(row.Title ?? row.title ?? "").trim(),
@@ -176,7 +176,7 @@ export default async function TutorDashboard() {
       .toUpperCase() || "TR";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-900 text-white pt-24">
+    <div className="min-h-screen bg-linear-to-br from-slate-950 via-emerald-950 to-slate-900 text-white pt-24">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div>
             <div className="mb-8 rounded-2xl border border-emerald-500/20 bg-slate-900/70 backdrop-blur p-6 shadow-xl">
@@ -268,6 +268,18 @@ export default async function TutorDashboard() {
               <div className="rounded-xl border border-slate-700 bg-slate-900/80 p-5">
                 <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
                 <div className="grid gap-3">
+                  <Link
+                    href="/prime-college/tutor/assessments"
+                    className="rounded-md bg-slate-800 hover:bg-slate-700 p-3 font-semibold"
+                  >
+                    Manage Assessments
+                  </Link>
+                  <Link
+                    href="/prime-college/tutor/gradebook"
+                    className="rounded-md bg-emerald-700/70 hover:bg-emerald-600 p-3 font-semibold"
+                  >
+                    Open Gradebook
+                  </Link>
                   <Link
                     href="/prime-college/admin/dashboard"
                     className="rounded-md bg-slate-800 hover:bg-slate-700 p-3 font-semibold"

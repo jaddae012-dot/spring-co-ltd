@@ -75,17 +75,22 @@ function matchAdminCredentials(
   );
 }
 
+async function safeGetSheetRows(sheetName: string): Promise<Record<string, unknown>[]> {
+  try {
+    return (await getGoogleSheetData(sheetName)) as Record<string, unknown>[];
+  } catch (error) {
+    console.error(`Failed to fetch Google Sheet ${sheetName}:`, error);
+    return [];
+  }
+}
+
 async function getAdminRows(): Promise<Record<string, unknown>[]> {
   const candidateSheets = ["admins", "Admins", "admin", "Admin"];
 
   for (const sheetName of candidateSheets) {
-    try {
-      const rows = (await getGoogleSheetData(sheetName)) as Record<string, unknown>[];
-      if (rows.length > 0) {
-        return rows;
-      }
-    } catch {
-      // Try the next possible tab name.
+    const rows = await safeGetSheetRows(sheetName);
+    if (rows.length > 0) {
+      return rows;
     }
   }
 
@@ -109,9 +114,11 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const students = await getGoogleSheetData("students");
-    const tutors = await getGoogleSheetData("tutors");
-    const admins = await getAdminRows();
+    const [students, tutors, admins] = await Promise.all([
+      safeGetSheetRows("students"),
+      safeGetSheetRows("tutors"),
+      getAdminRows(),
+    ]);
 
     const envAdminId = normalizeId(
       process.env.ADMIN_LOGIN_ID || process.env.ADMIN_ID || ""

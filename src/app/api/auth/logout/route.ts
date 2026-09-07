@@ -12,7 +12,14 @@ export async function GET(req: NextRequest) {
   try {
     const refererUrl = new URL(referer);
     if (refererUrl.pathname.startsWith("/spring-cooperative")) {
-      redirectPath = "/spring-cooperative/login";
+      if (
+        refererUrl.pathname.startsWith("/spring-cooperative/business-profile") ||
+        refererUrl.pathname.startsWith("/spring-cooperative/secret-login")
+      ) {
+        redirectPath = "/spring-cooperative/secret-login";
+      } else {
+        redirectPath = "/spring-cooperative/login";
+      }
     } else if (refererUrl.pathname.startsWith("/prime-college")) {
       redirectPath = "/prime-college/login";
     }

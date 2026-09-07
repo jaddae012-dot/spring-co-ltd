@@ -32,7 +32,7 @@ export async function GET() {
   }
 
   try {
-    const rawRows = (await getGoogleSheetData("resources")) as Record<
+    const rawRows = (await getGoogleSheetData("resources", { timeoutMs: 8000 })) as Record<
       string,
       unknown
     >[];

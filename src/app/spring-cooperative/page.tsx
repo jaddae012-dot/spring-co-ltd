@@ -19,7 +19,7 @@ export default function SpringCooperativeHome() {
             <p className="text-xl text-gray-400 mb-4 leading-relaxed">Empowering communities through <span className="text-yellow-400 font-semibold">savings, credit, and mutual support</span>.</p>
             <p className="text-gray-500 mb-8">Join thousands of members building financial security and community wealth together.</p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/spring-cooperative/membership" className="px-8 py-4 rounded-2xl bg-gradient-to-r from-yellow-500 to-amber-600 text-white font-semibold text-lg transition-colors duration-200 shadow-lg shadow-yellow-500/25 text-center">Become a Member</Link>
+              <Link href="/spring-cooperative/membership" className="px-8 py-4 rounded-2xl bg-linear-to-r from-yellow-500 to-amber-600 text-white font-semibold text-lg transition-colors duration-200 shadow-lg shadow-yellow-500/25 text-center">Become a Member</Link>
               <Link href="/spring-cooperative/services" className="px-8 py-4 rounded-2xl glass text-white font-semibold text-lg hover:bg-white/10 transition-colors duration-200 text-center">Our Services</Link>
             </div>
           </div>
@@ -70,7 +70,7 @@ export default function SpringCooperativeHome() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">Start Building Your <span className="text-yellow-500">Future</span></h2>
           <p className="text-gray-400 text-lg mb-10">Membership is open to everyone. Join today and take control of your financial future.</p>
-          <Link href="/spring-cooperative/membership" className="inline-flex px-10 py-4 rounded-2xl bg-gradient-to-r from-yellow-500 to-amber-600 text-white font-semibold text-lg transition-colors duration-200 shadow-lg">Join Now</Link>
+          <Link href="/spring-cooperative/membership" className="inline-flex px-10 py-4 rounded-2xl bg-linear-to-r from-yellow-500 to-amber-600 text-white font-semibold text-lg transition-colors duration-200 shadow-lg">Join Now</Link>
         </div>
       </section>
     </div>

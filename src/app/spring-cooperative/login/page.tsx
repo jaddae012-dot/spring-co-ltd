@@ -85,7 +85,7 @@ export default function CooperativeLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full rounded-2xl bg-gradient-to-r from-yellow-500 to-amber-600 px-6 py-4 text-lg font-semibold text-slate-950 transition hover:from-yellow-400 hover:to-amber-500 disabled:opacity-60"
+              className="w-full rounded-2xl bg-linear-to-r from-yellow-500 to-amber-600 px-6 py-4 text-lg font-semibold text-slate-950 transition hover:from-yellow-400 hover:to-amber-500 disabled:opacity-60"
             >
               {isLoading ? "Signing in..." : "Access Dashboard"}
             </button>

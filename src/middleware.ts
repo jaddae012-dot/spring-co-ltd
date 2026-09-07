@@ -6,8 +6,13 @@ export function middleware(request: NextRequest) {
 
   const isAdminArea = pathname === "/admin" || pathname.startsWith("/admin/");
   const isAdminApi = pathname === "/api/admin" || pathname.startsWith("/api/admin/");
+  const isSpringCoopBusinessProfile = pathname === "/spring-cooperative/business-profile" || pathname.startsWith("/spring-cooperative/business-profile/");
 
   if (pathname.startsWith("/prime-college/admin/login")) {
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith("/spring-cooperative/secret-login")) {
     return NextResponse.next();
   }
 
@@ -28,6 +33,12 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
+    if (isSpringCoopBusinessProfile) {
+      const loginUrl = new URL("/spring-cooperative/secret-login", request.url);
+      loginUrl.searchParams.set("from", request.nextUrl.pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
     const loginUrl = new URL("/prime-college/login", request.url);
     loginUrl.searchParams.set("from", request.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
@@ -39,9 +50,13 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/prime-college/dashboard/:path*",
-    "/prime-college/tutor/dashboard/:path*",
-    "/prime-college/admin",
+    "/prime-college/assessments/:path*",
+    "/prime-college/assessments",
+    "/prime-college/tutor/dashboard/:path*",    "/prime-college/tutor/assessments",
+    "/prime-college/tutor/assessments/:path*",    "/prime-college/admin",
     "/prime-college/admin/:path*",
+    "/spring-cooperative/business-profile",
+    "/spring-cooperative/business-profile/:path*",
     "/admin",
     "/admin/:path*",
     "/api/admin/:path*",

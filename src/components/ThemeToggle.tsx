@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { recordSecretaryEntry } from "@/lib/company-secretary";
 
 type Theme = "dark" | "light";
 
@@ -24,11 +26,15 @@ function applyTheme(theme: Theme) {
 
 interface ThemeToggleProps {
   compact?: boolean;
+  secretGestureHref?: string;
 }
 
-export default function ThemeToggle({ compact = false }: ThemeToggleProps) {
+export default function ThemeToggle({ compact = false, secretGestureHref }: ThemeToggleProps) {
+  const router = useRouter();
   const [theme, setTheme] = useState<Theme>("dark");
   const [mounted, setMounted] = useState(false);
+  const lastTapRef = useRef<number>(0);
+  const gestureTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY) as Theme | null;
@@ -43,7 +49,55 @@ export default function ThemeToggle({ compact = false }: ThemeToggleProps) {
     setTheme(nextTheme);
     applyTheme(nextTheme);
     window.localStorage.setItem(STORAGE_KEY, nextTheme);
+    recordSecretaryEntry({
+      category: "system",
+      title: "Theme changed",
+      detail: `The interface was switched to ${nextTheme} mode.`,
+      path: window.location.pathname,
+    });
   }
+
+  function handleClick() {
+    toggleTheme();
+
+    if (!secretGestureHref) {
+      return;
+    }
+
+    const now = Date.now();
+    const isDoubleTap = now - lastTapRef.current < 325;
+
+    if (gestureTimerRef.current) {
+      clearTimeout(gestureTimerRef.current);
+      gestureTimerRef.current = null;
+    }
+
+    if (isDoubleTap) {
+      lastTapRef.current = 0;
+      recordSecretaryEntry({
+        category: "navigation",
+        title: "Secret gateway used",
+        detail: `A double tap on the theme control opened ${secretGestureHref}.`,
+        path: secretGestureHref,
+      });
+      router.push(secretGestureHref);
+      return;
+    }
+
+    lastTapRef.current = now;
+    gestureTimerRef.current = setTimeout(() => {
+      lastTapRef.current = 0;
+      gestureTimerRef.current = null;
+    }, 350);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (gestureTimerRef.current) {
+        clearTimeout(gestureTimerRef.current);
+      }
+    };
+  }, []);
 
   if (!mounted) {
     return (
@@ -60,7 +114,7 @@ export default function ThemeToggle({ compact = false }: ThemeToggleProps) {
   return (
     <button
       type="button"
-      onClick={toggleTheme}
+      onClick={handleClick}
       aria-label={theme === "dark" ? "Switch to daylight mode" : "Switch to night mode"}
       title={theme === "dark" ? "Daylight mode" : "Night mode"}
       className={`inline-flex items-center justify-center rounded-xl border border-white/15 bg-white/5 text-gray-200 hover:bg-white/10 transition-colors ${

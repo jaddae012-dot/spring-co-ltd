@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import CompanySecretaryTracker from "@/components/CompanySecretaryTracker";
 
 const themeInitScript = `(() => {
   try {
@@ -16,12 +16,6 @@ const themeInitScript = `(() => {
     root.setAttribute('data-theme', theme);
   } catch (_) {}
 })();`;
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  preload: true,
-});
 
 export const metadata: Metadata = {
   title: "SPRING.CO.LTD — Building Tomorrow's Enterprises Today",
@@ -76,10 +70,9 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body
-        className={`${inter.className} bg-[var(--app-bg)] text-[var(--app-text)] antialiased app-theme-transition`}
-      >
+      <body className="bg-(--app-bg) text-(--app-text) antialiased app-theme-transition">
         <Navbar />
+        <CompanySecretaryTracker />
         <main className="min-h-screen">{children}</main>
         <Footer />
       </body>
