@@ -23,8 +23,6 @@ type AssessmentDraft = {
   durationMinutes: string;
   dueDate: string;
   instructions: string;
-  assignmentMode: "all" | "selected";
-  assignedStudentIds: string;
   questions: QuestionDraft[];
 };
 
@@ -45,8 +43,6 @@ const defaultDraft: AssessmentDraft = {
   durationMinutes: "20",
   dueDate: "",
   instructions: "Answer all questions within the allowed time.",
-  assignmentMode: "all",
-  assignedStudentIds: "",
   questions: [emptyQuestion()],
 };
 
@@ -57,22 +53,8 @@ export default function TutorAssessmentBuilder() {
 
   useEffect(() => {
     try {
-      async function loadCount() {
-        try {
-          const response = await fetch("/api/prime-college/assessments");
-          if (!response.ok) {
-            setSavedCount(0);
-            return;
-          }
-
-          const data = await response.json();
-          setSavedCount(Array.isArray(data.assessments) ? data.assessments.length : 0);
-        } catch {
-          setSavedCount(0);
-        }
-      }
-
-      loadCount();
+      const existing = JSON.parse(localStorage.getItem("prime-college-assessments") || "[]");
+      setSavedCount(existing.length || 0);
     } catch {
       setSavedCount(0);
     }
@@ -119,7 +101,7 @@ export default function TutorAssessmentBuilder() {
     }));
   }
 
-  async function submitAssessment() {
+  function submitAssessment() {
     const title = draft.title.trim();
     const course = draft.course.trim();
 
@@ -154,43 +136,10 @@ export default function TutorAssessmentBuilder() {
     };
 
     try {
-      const response = await fetch("/api/prime-college/assessments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: payload.title,
-          course: payload.course,
-          type: payload.type,
-          durationMinutes: Number(payload.durationMinutes) || 20,
-          dueDate: payload.dueDate,
-          instructions: payload.instructions,
-          assignmentMode: payload.assignmentMode,
-          assignedStudentIds: payload.assignmentMode === "selected"
-            ? payload.assignedStudentIds.split(/[\s,]+/).map((value) => value.trim()).filter(Boolean)
-            : [],
-          questions: payload.questions.map((question) => ({
-            id: question.id,
-            type: question.type,
-            prompt: question.prompt,
-            options: question.type === "multiple-choice" ? question.options : [],
-            correctAnswer: question.type === "multiple-choice" ? question.correctAnswer : "",
-            marks: Number(question.marks) || 5,
-          })),
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        alert(data.message || "We could not publish this assessment. Please try again.");
-        return;
-      }
-
-      const data = await response.json();
-      setSavedCount((current) => current + 1);
-      if (data?.assessment?.id) {
-        router.push("/prime-college/tutor/assessments");
-        return;
-      }
+      const existing = JSON.parse(localStorage.getItem("prime-college-assessments") || "[]");
+      const next = [payload, ...existing];
+      localStorage.setItem("prime-college-assessments", JSON.stringify(next));
+      setSavedCount(next.length);
       router.push("/prime-college/tutor/assessments");
     } catch {
       alert("We could not save this assessment. Please try again.");
@@ -277,30 +226,6 @@ export default function TutorAssessmentBuilder() {
                 className="min-h-24 w-full rounded-xl border border-slate-700 bg-slate-950/50 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none"
                 placeholder="Explain what students should do, how to submit, and any relevant guidelines."
               />
-            </div>
-
-            <div className="border-t border-slate-800 pt-4">
-              <label className="mb-1 block text-sm font-medium text-slate-300">Assign assessment to</label>
-              <select
-                value={draft.assignmentMode}
-                onChange={(event) => updateDraft("assignmentMode", event.target.value as "all" | "selected")}
-                className="w-full rounded-xl border border-slate-700 bg-slate-950/50 px-3 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none"
-              >
-                <option value="all">All students in this course</option>
-                <option value="selected">Selected students</option>
-              </select>
-              {draft.assignmentMode === "selected" && (
-                <>
-                  <label className="mb-1 mt-3 block text-xs uppercase tracking-[0.2em] text-slate-400">Student IDs</label>
-                  <textarea
-                    value={draft.assignedStudentIds}
-                    onChange={(event) => updateDraft("assignedStudentIds", event.target.value)}
-                    className="min-h-20 w-full rounded-xl border border-slate-700 bg-slate-950/50 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none"
-                    placeholder="STU001, STU014, STU027"
-                  />
-                  <p className="mt-1 text-xs text-slate-500">Enter student IDs separated by commas or spaces.</p>
-                </>
-              )}
             </div>
           </div>
         </div>

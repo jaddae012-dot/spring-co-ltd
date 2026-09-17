@@ -17,22 +17,12 @@ export default function TutorAssessmentList() {
   const [assessments, setAssessments] = useState<AssessmentSummary[]>([]);
 
   useEffect(() => {
-    async function loadAssessments() {
-      try {
-        const response = await fetch("/api/prime-college/assessments");
-        if (!response.ok) {
-          setAssessments([]);
-          return;
-        }
-
-        const data = await response.json();
-        setAssessments(Array.isArray(data.assessments) ? data.assessments : []);
-      } catch {
-        setAssessments([]);
-      }
+    try {
+      const saved = JSON.parse(localStorage.getItem("prime-college-assessments") || "[]");
+      setAssessments(saved);
+    } catch {
+      setAssessments([]);
     }
-
-    loadAssessments();
   }, []);
 
   return (
@@ -78,7 +68,7 @@ export default function TutorAssessmentList() {
 
               <div className="mt-4 flex gap-2">
                 <Link
-                  href={`/prime-college/tutor/assessments/${assessment.id}/preview`}
+                  href={`/prime-college/assessments/${assessment.id}`}
                   className="inline-flex flex-1 items-center justify-center rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm font-semibold text-slate-200 transition hover:border-slate-500 hover:bg-slate-700"
                 >
                   Preview

@@ -207,7 +207,7 @@ async function getStudentData(studentId: string) {
 
 async function getResources(program: string): Promise<ResourceItem[]> {
   try {
-    const rows = (await getGoogleSheetData("resources", { timeoutMs: 8000 })) as Record<string, unknown>[];
+    const rows = (await getGoogleSheetData("resources")) as Record<string, unknown>[];
     const programKey = normalizeId(program);
     return rows
       .map((row) => ({
@@ -550,11 +550,6 @@ export default async function StudentDashboard() {
             href: "/prime-college/assessments",
             description: "Take timed quizzes and complete online assignments from your student portal.",
           },
-          {
-            label: "My Gradebook",
-            href: "/prime-college/gradebook",
-            description: "Review your published assessment results and tutor feedback.",
-          },
           ...portalData.actions,
         ]
       : [
@@ -562,11 +557,6 @@ export default async function StudentDashboard() {
             label: "My Assessments",
             href: "/prime-college/assessments",
             description: "Take timed quizzes and complete online assignments from your student portal.",
-          },
-          {
-            label: "My Gradebook",
-            href: "/prime-college/gradebook",
-            description: "Review your published assessment results and tutor feedback.",
           },
           {
             label: "Academic Office",

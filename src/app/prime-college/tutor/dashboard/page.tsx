@@ -82,7 +82,7 @@ async function getTutorData(tutorId: string) {
 
 async function getResources(): Promise<ResourceItem[]> {
   try {
-    const rows = (await getGoogleSheetData("resources", { timeoutMs: 8000 })) as Record<string, unknown>[];
+    const rows = (await getGoogleSheetData("resources")) as Record<string, unknown>[];
     return rows
       .map((row) => ({
         title: String(row.Title ?? row.title ?? "").trim(),
@@ -273,12 +273,6 @@ export default async function TutorDashboard() {
                     className="rounded-md bg-slate-800 hover:bg-slate-700 p-3 font-semibold"
                   >
                     Manage Assessments
-                  </Link>
-                  <Link
-                    href="/prime-college/tutor/gradebook"
-                    className="rounded-md bg-emerald-700/70 hover:bg-emerald-600 p-3 font-semibold"
-                  >
-                    Open Gradebook
                   </Link>
                   <Link
                     href="/prime-college/admin/dashboard"

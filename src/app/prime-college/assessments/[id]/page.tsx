@@ -10,16 +10,16 @@ interface AssessmentDetailPageProps {
 export default async function AssessmentDetailPage({ params }: AssessmentDetailPageProps) {
   const session = await getSession();
 
-  if (!session.isLoggedIn || (session.userType !== "student" && session.userType !== "tutor" && session.userType !== "admin")) {
+  if (!session.isLoggedIn || session.userType !== "student") {
     redirect("/prime-college/login");
   }
 
   const { id } = await params;
-  const assessment = await getAssessmentById(id, session.userType === "student" ? session.id : undefined);
+  const assessment = getAssessmentById(id);
 
   if (!assessment) {
     notFound();
   }
 
-  return <AssessmentQuizClient assessment={assessment} isPreview={session.userType !== "student"} />;
+  return <AssessmentQuizClient assessment={assessment} />;
 }

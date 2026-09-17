@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/session";
-import { getPrimeCollegeAssessments } from "@/data/prime-college-assessments";
-import { getGoogleSheetData } from "@/lib/sheets";
+import { primeCollegeAssessments } from "@/data/prime-college-assessments";
 
 export default async function PrimeCollegeAssessmentsPage() {
   const session = await getSession();
@@ -10,11 +9,6 @@ export default async function PrimeCollegeAssessmentsPage() {
   if (!session.isLoggedIn || session.userType !== "student") {
     redirect("/prime-college/login");
   }
-
-  const students = (await getGoogleSheetData("students")) as Record<string, unknown>[];
-  const student = students.find((row) => String(row.StudentID ?? row["Student ID"] ?? row.ID ?? "").trim().toLowerCase() === session.id.trim().toLowerCase());
-  const program = String(student?.Program ?? student?.Course ?? student?.Programme ?? "").trim();
-  const assessments = await getPrimeCollegeAssessments({ studentId: session.id, program });
 
   return (
     <div className="min-h-screen bg-slate-950 pt-24 text-white">
@@ -37,7 +31,7 @@ export default async function PrimeCollegeAssessmentsPage() {
         </div>
 
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {assessments.map((assessment) => (
+          {primeCollegeAssessments.map((assessment) => (
             <article
               key={assessment.id}
               className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-lg shadow-slate-950/20"
