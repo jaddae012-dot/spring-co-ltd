@@ -1,5 +1,3 @@
-import { getGoogleSheetData } from "@/lib/sheets";
-
 export type AssessmentType = "quiz" | "assignment";
 export type QuestionType = "multiple-choice" | "short-answer";
 
@@ -22,13 +20,9 @@ export interface PrimeCollegeAssessment {
   status: "Open" | "Closed" | "Draft";
   instructions: string;
   questions: AssessmentQuestion[];
-  assignmentMode: "all" | "selected";
-  assignedStudentIds: string[];
-  createdBy?: string;
-  createdAt?: string;
 }
 
-const fallbackAssessments: PrimeCollegeAssessment[] = [
+export const primeCollegeAssessments: PrimeCollegeAssessment[] = [
   {
     id: "business-communication-quiz",
     title: "Business Communication Quiz",
@@ -39,8 +33,6 @@ const fallbackAssessments: PrimeCollegeAssessment[] = [
     status: "Open",
     instructions:
       "Answer each question carefully. You have 20 minutes to complete this timed quiz. Submit once you are done. The timer will auto-submit when time expires.",
-    assignmentMode: "all",
-    assignedStudentIds: [],
     questions: [
       {
         id: "q1",
@@ -99,8 +91,6 @@ const fallbackAssessments: PrimeCollegeAssessment[] = [
     status: "Open",
     instructions:
       "Write a short reflection on how research helps decision-making in real-world business and academic practice. Submit your answer in plain text or upload a document.",
-    assignmentMode: "all",
-    assignedStudentIds: [],
     questions: [
       {
         id: "a1",
@@ -118,101 +108,6 @@ const fallbackAssessments: PrimeCollegeAssessment[] = [
   },
 ];
 
-function asText(value: unknown): string {
-  return String(value ?? "").trim();
+export function getAssessmentById(id: string) {
+  return primeCollegeAssessments.find((assessment) => assessment.id === id) ?? null;
 }
-
-function normalizeCourse(value: unknown): string {
-  return asText(value).replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
-}
-
-function parseQuestions(raw: unknown): AssessmentQuestion[] {
-  if (!raw) return [];
-
-  try {
-    const parsed = JSON.parse(String(raw));
-    if (Array.isArray(parsed)) return parsed as AssessmentQuestion[];
-  } catch {
-    // The sheet may store a simple string or an older format.
-  }
-
-  return [];
-}
-
-export async function getPrimeCollegeAssessments(options?: { studentId?: string; program?: string }): Promise<PrimeCollegeAssessment[]> {
-  try {
-    const rows = (await getGoogleSheetData("prime_college_assessments")) as Record<string, unknown>[];
-
-    const normalized = rows
-      .map((row) => {
-        const assessmentId = asText(row.AssessmentID ?? row["Assessment ID"] ?? row.ID ?? row.id);
-        const title = asText(row.Title ?? row.title);
-        const course = asText(row.Course ?? row.course);
-        const type = asText(row.Type ?? row.type).toLowerCase() === "assignment" ? "assignment" : "quiz";
-        const durationMinutes = Number(asText(row.DurationMinutes ?? row["Duration Minutes"] ?? "0")) || 0;
-        const dueDate = asText(row.DueDate ?? row["Due Date"] ?? row.dueDate);
-        const status = (asText(row.Status ?? row.status) || "Open") as PrimeCollegeAssessment["status"];
-        const instructions = asText(row.Instructions ?? row.instructions);
-        const questions = parseQuestions(row.QuestionsJSON ?? row["Questions JSON"] ?? row.questions);
-        const assignmentMode = asText(row.AssignmentMode ?? row["Assignment Mode"] ?? "all").toLowerCase() === "selected" ? "selected" : "all";
-        const assignedStudentIds = asText(row.AssignedStudentIDs ?? row["Assigned Student IDs"] ?? row.AssignedStudentIds)
-          .split(/[\s,]+/)
-          .map((value) => normalizeCourse(value))
-          .filter(Boolean);
-
-        if (!assessmentId || !title) return null;
-
-        return {
-          id: assessmentId,
-          title,
-          course,
-          type,
-          durationMinutes,
-          dueDate,
-          status: ["Open", "Closed", "Draft"].includes(status) ? status : "Open",
-          instructions,
-          questions,
-          assignmentMode,
-          assignedStudentIds,
-          createdBy: asText(row.CreatedBy ?? row["Created By"] ?? row.createdBy),
-          createdAt: asText(row.CreatedAt ?? row["Created At"] ?? row.createdAt),
-        } satisfies PrimeCollegeAssessment;
-      })
-      .filter(Boolean) as PrimeCollegeAssessment[];
-
-    if (normalized.length > 0) {
-      const studentId = normalizeCourse(options?.studentId);
-      const program = normalizeCourse(options?.program);
-      return normalized.filter((assessment) => {
-        if (assessment.assignmentMode === "selected") {
-          return Boolean(studentId && assessment.assignedStudentIds.includes(studentId));
-        }
-        const course = normalizeCourse(assessment.course);
-        return !program || course === program || course.includes(program) || program.includes(course);
-      });
-    }
-  } catch {
-    // Fall back to the built-in demo set if the sheet is not yet populated.
-  }
-
-  return fallbackAssessments;
-}
-
-export async function getAssessmentById(id: string, studentId?: string) {
-  const normalizedId = id.trim().toLowerCase();
-  let assessments = await getPrimeCollegeAssessments();
-  let assessment = assessments.find((item) => item.id.trim().toLowerCase() === normalizedId) ?? null;
-
-  // A slow Sheets response can briefly produce the fallback set during development.
-  // Retry once before treating a valid assessment URL as missing.
-  if (!assessment) {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    assessments = await getPrimeCollegeAssessments();
-    assessment = assessments.find((item) => item.id.trim().toLowerCase() === normalizedId) ?? null;
-  }
-
-  if (!assessment || !studentId || assessment.assignmentMode === "all") return assessment;
-  return assessment.assignedStudentIds.includes(normalizeCourse(studentId)) ? assessment : null;
-}
-
-export const primeCollegeAssessments = fallbackAssessments;
