@@ -9,6 +9,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@next/swc-win32-x64-msvc": "15.5.28",
     "@notionhq/client": "^5.9.0",
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^3.0.3",
